@@ -714,7 +714,7 @@
     position:fixed; right:18px; bottom:96px; z-index:80;
     background:var(--panel); border:1px solid var(--line); border-radius:12px;
     padding:.7rem; box-shadow:var(--shadow); display:none; flex-direction:column; gap:.4rem;
-    font-family:'IBM Plex Mono'; width:150px;
+    font-family:'IBM Plex Mono'; width:196px;
   }
   #editPanel.is-open{ display:flex; }
   #editPanel .ep-key{ font-size:.68rem; color:var(--ink-faint); text-align:center; word-break:break-all; margin-bottom:.15rem; }
@@ -772,6 +772,10 @@
     <button data-act="reset" class="ep-reset">Reset</button>
     <button data-act="close">Done</button>
   </div>
+  <div class="ep-row">
+    <button data-act="export" style="width:100%;">Copy changes to send</button>
+  </div>
+  <textarea id="epExportArea" hidden readonly style="width:100%; height:110px; margin-top:.4rem; font-family:'IBM Plex Mono'; font-size:.6rem; padding:.4rem; border-radius:8px; border:1px solid var(--line); background:var(--paper); color:var(--ink); resize:none; box-sizing:border-box;"></textarea>
 </div>
 
 <div id="videoModal" class="video-modal">
@@ -1879,12 +1883,9 @@
 })();
 
 (async function(){
-  if(typeof claude === 'undefined') return;
-  var db = null;
-  try { db = await claude.use('db'); } catch(e){ db = null; }
-  if(!db) return;
-
-  var editsCol = db.collection('edits');
+  // No live database on this static host: edits stay in memory for this
+  // viewing session only. Use the panel's "Copy" button to hand the exact
+  // values to Claude Code to write into the real file and commit.
   var overrides = {};
 
   function applyOverride(key, data){
@@ -1964,15 +1965,6 @@
     });
   } catch(e){ console.error('edit-mode tagging failed', e); }
 
-  try {
-    var snap = await editsCol.get();
-    snap.docs.forEach(function(d){
-      var data = d.data();
-      overrides[d.id] = data;
-      applyOverride(d.id, data);
-    });
-  } catch(e){ console.error('edit-mode load failed', e); }
-
   var panel = document.getElementById('editPanel');
   var epKey = document.getElementById('epKey');
   var editModeOn = false;
@@ -2006,13 +1998,7 @@
 
   editBtn.addEventListener('click', function(){ setEditMode(!editModeOn); });
 
-  var saveTimers = {};
-  function scheduleSave(key, data){
-    clearTimeout(saveTimers[key]);
-    saveTimers[key] = setTimeout(function(){
-      editsCol.doc(key).set(data).catch(function(){});
-    }, 400);
-  }
+  function scheduleSave(){ /* no live store on this host - values live in `overrides` until exported */ }
   function dataFor(key){
     var d = overrides[key] || {};
     return {dx:d.dx||0, dy:d.dy||0, scale:d.scale||1, fs:(d.fs!=null?d.fs:null), w:(d.w!=null?d.w:null), h:(d.h!=null?d.h:null)};
@@ -2075,8 +2061,49 @@
   function resetSel(){
     selectedKeys.forEach(function(key){
       setDataFor(key, {dx:0, dy:0, scale:1, fs:null, w:null, h:null});
-      editsCol.doc(key).delete().catch(function(){});
+      delete overrides[key];
     });
+  }
+
+  function describeKey(key){
+    var el = document.querySelector('[data-editkey="'+key+'"]');
+    if(!el) return key;
+    var slideEl = el.closest('.slide');
+    var title = slideEl ? slideEl.querySelector('.title, h2, h3') : null;
+    var label = (title && title.textContent.trim().slice(0,40)) || '';
+    var own = (el.textContent || '').trim().replace(/\s+/g,' ').slice(0,30);
+    return key + (label ? '  [slide: "'+label+'"]' : '') + (own ? '  [element: "'+own+'"]' : '');
+  }
+
+  function exportChanges(){
+    var lines = [];
+    Object.keys(overrides).forEach(function(key){
+      var d = overrides[key];
+      var isDefault = (!d.dx && !d.dy && (!d.scale || d.scale===1) && d.fs==null && d.w==null && d.h==null);
+      if(isDefault) return;
+      var parts = [];
+      if(d.dx) parts.push('dx:'+Math.round(d.dx));
+      if(d.dy) parts.push('dy:'+Math.round(d.dy));
+      if(d.scale && d.scale!==1) parts.push('scale:'+d.scale.toFixed(2));
+      if(d.fs!=null) parts.push('font-size:'+Math.round(d.fs)+'px');
+      if(d.w!=null) parts.push('width:'+Math.round(d.w)+'px');
+      if(d.h!=null) parts.push('height:'+Math.round(d.h)+'px');
+      lines.push(describeKey(key) + '\n    ' + parts.join(', '));
+    });
+    var text = lines.length ? lines.join('\n\n') : '(no changes made this session)';
+    var ta = document.getElementById('epExportArea');
+    ta.value = text;
+    ta.hidden = false;
+    ta.focus();
+    ta.select();
+    try {
+      navigator.clipboard.writeText(text).then(function(){
+        var btn = panel.querySelector('[data-act="export"]');
+        var was = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function(){ btn.textContent = was; }, 1400);
+      }).catch(function(){});
+    } catch(e){}
   }
 
   function clearGuides(){
@@ -2216,5 +2243,6 @@
   panel.querySelector('[data-act="fontsmaller"]').addEventListener('click', function(){ fontStep(-2); });
   panel.querySelector('[data-act="reset"]').addEventListener('click', resetSel);
   panel.querySelector('[data-act="close"]').addEventListener('click', deselect);
+  panel.querySelector('[data-act="export"]').addEventListener('click', exportChanges);
 })();
 </script>
