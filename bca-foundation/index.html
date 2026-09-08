@@ -703,6 +703,11 @@
   .end .content{ text-align:center; margin:0 auto; }
 
   [data-editkey]{ transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  /* .sob-gallery's own children (.sob-slide) read the same --edx/--edy/--esc
+     via inheritance in their own transform formula, so the generic rule above
+     would move the frame AND the photo independently and out of sync (clipped
+     patches at the wrong offset). Freeze the frame; only the photo pans/zooms. */
+  .sob-gallery{ transform:none !important; }
   body.edit-mode [data-editkey]{ outline:1px dashed transparent; cursor:grab; }
   body.edit-mode [data-editkey]:active{ cursor:grabbing; }
   body.edit-mode [data-editkey]:hover{ outline-color:var(--accent-soft, var(--accent)); }
@@ -997,11 +1002,11 @@
 
   slide(1, `
     <div class="slide">
-      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 7 of 12</span></div>
+      <div class="kicker" style="--edx:-3px; --edy:-64px;"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 7 of 12</span></div>
       <div class="content wide">
-        <h2 class="title" style="margin-bottom:1.3rem;">Single origin, or a blend?</h2>
+        <h2 class="title" style="margin-bottom:1.3rem; --edx:-3px; --edy:-64px;">Single origin, or a blend?</h2>
         <div class="grid2" style="align-items:start; gap:2.4rem;">
-          <div class="sob-gallery">
+          <div class="sob-gallery" style="--edx:3px; --edy:10px; --esc:1.20;">
             <div class="sob-slide is-active"><img src="assets/img/img-012.jpg" alt="Craft your brew, from bean to cup — single origin and blend side by side"></div>
             <div class="sob-slide"><img src="assets/img/img-013.jpg" alt="Single origin coffee cherries picked by hand, straight from the farm"></div>
             <div class="sob-slide"><img src="assets/img/img-014.jpg" alt="A blend brings different beans together into one consistent cup"></div>
@@ -1010,22 +1015,22 @@
           </div>
           <div>
             <div class="grid2" style="gap:1rem;">
-              <div class="ar-ro-side" style="--edx:-102px; --edy:8px; --esc:1.20;">
-                <h4 style="font-family:'IBM Plex Mono'; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:.2rem;">Single Origin</h4>
-                <div class="ar-ro-fact"><span class="eyebrow">Traceability</span>One farm, one harvest, one story</div>
-                <div class="ar-ro-fact"><span class="eyebrow">Flavour</span>Distinct, can shift season to season</div>
-                <div class="ar-ro-fact"><span class="eyebrow">Best for</span>Exploring what one origin tastes like</div>
+              <div class="ar-ro-side" style="--edx:-17px; --edy:-105px; font-size:22px; width:401px; height:249px;">
+                <h4 style="font-family:'IBM Plex Mono'; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:.2rem; font-size:inherit;">Single Origin</h4>
+                <div class="ar-ro-fact" style="font-size:inherit;"><span class="eyebrow" style="font-size:inherit;">Traceability</span>One farm, one harvest, one story</div>
+                <div class="ar-ro-fact" style="font-size:inherit;"><span class="eyebrow" style="font-size:inherit;">Flavour</span>Distinct, can shift season to season</div>
+                <div class="ar-ro-fact" style="font-size:inherit;"><span class="eyebrow" style="font-size:inherit;">Best for</span>Exploring what one origin tastes like</div>
               </div>
-              <div class="ar-ro-side" style="--edx:-8px; --edy:17px; --esc:1.20;">
-                <h4 style="font-family:'IBM Plex Mono'; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--copper); margin-bottom:.2rem;">Blend</h4>
-                <div class="ar-ro-fact"><span class="eyebrow">Traceability</span>Multiple origins, combined by a roaster</div>
-                <div class="ar-ro-fact"><span class="eyebrow">Flavour</span>Balanced and consistent, cup to cup</div>
-                <div class="ar-ro-fact"><span class="eyebrow">Best for</span>A reliable house espresso or filter</div>
+              <div class="ar-ro-side" style="--edy:-100px; font-size:22px; width:401px; height:249px;">
+                <h4 style="font-family:'IBM Plex Mono'; letter-spacing:.08em; text-transform:uppercase; color:var(--copper); margin-bottom:.2rem; font-size:inherit;">Blend</h4>
+                <div class="ar-ro-fact" style="font-size:inherit;"><span class="eyebrow" style="font-size:inherit;">Traceability</span>Multiple origins, combined by a roaster</div>
+                <div class="ar-ro-fact" style="font-size:inherit;"><span class="eyebrow" style="font-size:inherit;">Flavour</span>Balanced and consistent, cup to cup</div>
+                <div class="ar-ro-fact" style="font-size:inherit;"><span class="eyebrow" style="font-size:inherit;">Best for</span>A reliable house espresso or filter</div>
               </div>
             </div>
-            <div class="card" style="margin-top:1.1rem; --edx:-13px; --edy:86px; --esc:1.20;">
-              <h3 style="font-size:.95rem; margin-bottom:.4rem;">Sri Lanka&rsquo;s own single-origin story</h3>
-              <p style="font-size:.83rem; color:var(--ink-soft); line-height:1.5;">Since coffee leaf rust pushed the island toward tea, coffee has stayed a niche crop &mdash; but small estates in Kandy, Uva and Nuwara Eliya are now reviving it as specialty single-origin: grown above 1,000m, mostly by smallholder farmers, cupping above 90 on the SCA scale, with notes of dark chocolate, spice and dried fruit.</p>
+            <div class="card" style="margin-top:1.1rem; --edx:-91px; --edy:69px; --esc:1.05; font-size:22px; width:866px; height:257px;">
+              <h3 style="margin-bottom:.4rem; font-size:inherit;">Sri Lanka&rsquo;s own single-origin story</h3>
+              <p style="color:var(--ink-soft); line-height:1.5; font-size:inherit;">Since coffee leaf rust pushed the island toward tea, coffee has stayed a niche crop &mdash; but small estates in Kandy, Uva and Nuwara Eliya are now reviving it as specialty single-origin: grown above 1,000m, mostly by smallholder farmers, cupping above 90 on the SCA scale, with notes of dark chocolate, spice and dried fruit.</p>
             </div>
           </div>
         </div>
