@@ -633,19 +633,26 @@
   .is-active .varietree-leaves .varietree-leaf:nth-child(6){ transition-delay:.8s; }
 
   .sob-gallery{ position:relative; width:100%; max-width:420px; max-height:56vh; aspect-ratio:4/5; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel); margin:0 auto; }
+  /* .sob-slide is INSIDE the draggable .sob-gallery unit and must not read the
+     gallery's own --edx/--edy/--esc a second time (that caused the box and photo
+     to move independently/out of sync). Reset the vars here so this subtree's
+     var() calls always resolve to identity - only the carousel slide-in/out
+     animation remains; the whole card (frame+photo) moves together via the
+     generic [data-editkey] rule on .sob-gallery itself. */
   .sob-slide{
+    --edx:0px; --edy:0px; --esc:1;
     position:absolute; inset:0; opacity:0;
-    transform:translateX(70px) scale(.8) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transform:translateX(70px) scale(.8);
     transition:opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1);
     pointer-events:none;
   }
   .sob-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
   .sob-slide.is-active{
-    opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    opacity:1; transform:none;
     z-index:2; pointer-events:auto;
   }
   .sob-slide.is-leaving{
-    opacity:0; transform:translateX(-70px) scale(.8) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    opacity:0; transform:translateX(-70px) scale(.8);
     z-index:1;
   }
 
@@ -703,11 +710,6 @@
   .end .content{ text-align:center; margin:0 auto; }
 
   [data-editkey]{ transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
-  /* .sob-gallery's own children (.sob-slide) read the same --edx/--edy/--esc
-     via inheritance in their own transform formula, so the generic rule above
-     would move the frame AND the photo independently and out of sync (clipped
-     patches at the wrong offset). Freeze the frame; only the photo pans/zooms. */
-  .sob-gallery{ transform:none !important; }
   body.edit-mode [data-editkey]{ outline:1px dashed transparent; cursor:grab; }
   body.edit-mode [data-editkey]:active{ cursor:grabbing; }
   body.edit-mode [data-editkey]:hover{ outline-color:var(--accent-soft, var(--accent)); }
