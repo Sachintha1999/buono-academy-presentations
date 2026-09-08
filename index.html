@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buono Academy Presentations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --paper:#f4efe3; --ink:#211d17; --ink-soft:#5a5445; --ink-faint:#8a8371;
+    --line:#e2d7bf; --panel:#ffffff; --accent:#2f5d50; --accent-soft:#dce9e3;
+    --shadow:0 10px 30px -18px rgba(33,29,23,.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#18140f; --ink:#f1ead9; --ink-soft:#c7bda5; --ink-faint:#8f846c;
+      --line:#3a3122; --panel:#221d16; --accent:#7fb6a2; --accent-soft:#243d34;
+      --shadow:0 10px 30px -16px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#18140f; --ink:#f1ead9; --ink-soft:#c7bda5; --ink-faint:#8f846c;
+    --line:#3a3122; --panel:#221d16; --accent:#7fb6a2; --accent-soft:#243d34;
+    --shadow:0 10px 30px -16px rgba(0,0,0,.55);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    background:var(--paper); color:var(--ink); min-height:100vh;
+    font-family:'Work Sans', ui-sans-serif, system-ui, sans-serif; line-height:1.55;
+  }
+  .wrap{ max-width:44rem; margin:0 auto; padding:4rem 1.5rem 5rem; }
+  .kicker{
+    font-family:'IBM Plex Mono'; font-size:.78rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); font-weight:600; margin-bottom:1rem;
+  }
+  h1{
+    font-family:'Fraunces', ui-serif, Georgia, serif; font-size:clamp(1.9rem,4.5vw,2.6rem);
+    font-weight:600; margin:0 0 .7rem; text-wrap:balance;
+  }
+  .lede{ color:var(--ink-soft); max-width:34rem; margin:0 0 2.6rem; font-size:1.02rem; }
+  .list{ display:flex; flex-direction:column; gap:.9rem; }
+  .card{
+    display:flex; align-items:center; gap:1.1rem; background:var(--panel); border:1px solid var(--line);
+    border-radius:14px; padding:1.2rem 1.4rem; text-decoration:none; color:inherit; box-shadow:var(--shadow);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .card:hover{ transform:translateY(-2px); border-color:var(--accent); }
+  .card .mark{
+    width:42px; height:42px; border-radius:10px; background:var(--accent-soft); color:var(--accent);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-weight:600;
+    font-size:.8rem; flex-shrink:0;
+  }
+  .card .title{ font-weight:600; font-size:1.05rem; }
+  .card .desc{ font-size:.86rem; color:var(--ink-faint); margin-top:.15rem; }
+  .card .go{ margin-left:auto; color:var(--ink-faint); font-family:'IBM Plex Mono'; font-size:.9rem; }
+  .placeholder{
+    border:1px dashed var(--line); border-radius:14px; padding:1.2rem 1.4rem;
+    color:var(--ink-faint); font-size:.88rem; font-style:italic;
+  }
+  footer{ margin-top:3rem; font-size:.78rem; color:var(--ink-faint); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="kicker">Buono Coffee Academy</div>
+    <h1>Training presentations</h1>
+    <p class="lede">Open any course below on the training-room display. Each one runs on its own &mdash; swipe left or right to move between slides.</p>
+
+    <div class="list">
+      <a class="card" href="bca-foundation/">
+        <div class="mark">01</div>
+        <div>
+          <div class="title">BCA Foundation</div>
+          <div class="desc">Espresso, grinding, milk technique, drinks and bar hygiene &mdash; the first course.</div>
+        </div>
+        <div class="go">Open &rarr;</div>
+      </a>
+
+      <div class="placeholder">More courses will be listed here as they're added.</div>
+    </div>
+
+    <footer>Buono Academy &middot; internal training use</footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,2220 @@
+<title>BCA Foundation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#211d17;
+    --ink-soft:#5a5445;
+    --ink-faint:#8a8371;
+    --paper:#faf7f0;
+    --panel:#f1e9d9;
+    --panel-2:#e8dec9;
+    --line:#ddd0b3;
+    --accent:#2f5d50;
+    --accent-ink:#f3efe2;
+    --accent-soft:#c7dbd2;
+    --copper:#ab6c34;
+    --copper-soft:#e9d3b6;
+    --danger:#a5432f;
+    --shadow: 0 18px 40px -22px rgba(33,29,23,0.35);
+    --radius: 18px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; width:100%; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans', ui-sans-serif, system-ui, sans-serif;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Fraunces', ui-serif, Georgia, serif; text-wrap:balance; margin:0; }
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace; }
+  ::selection{ background:var(--accent); color:var(--accent-ink); }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
+  button{ font-family:inherit; touch-action:manipulation; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ---------- shell ---------- */
+  #topbar{
+    position:fixed; top:0; left:0; right:0; height:4px; z-index:50;
+    background:var(--line);
+  }
+  #topbar > i{
+    display:block; height:100%; width:0%; background:var(--accent);
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+
+  #rail{
+    position:fixed; left:0; top:0; bottom:0; width:64px; height:100dvh; z-index:40;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; background:linear-gradient(180deg, transparent, var(--paper) 12%, var(--paper) 88%, transparent);
+    border-right:1px solid var(--line);
+  }
+  .rail-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink-faint); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono'; font-size:13px; font-weight:600;
+    transition:all .25s ease;
+  }
+  .rail-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .rail-btn.is-current{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); transform:scale(1.12); }
+  .rail-btn.is-endpoint{ font-size:14px; }
+
+  #stage{
+    position:fixed; inset:0 0 0 64px; height:100dvh; width:calc(100% - 64px); overflow:hidden;
+  }
+  .slide{
+    position:absolute; inset:0; height:100%; width:100%;
+    display:flex; flex-direction:column; justify-content:center;
+    padding: 2.1rem 5.4rem 5.2rem; box-sizing:border-box;
+    opacity:0; transform:translateY(14px) scale(.995);
+    pointer-events:none;
+    transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1);
+  }
+  .slide.is-active{ opacity:1; transform:none; pointer-events:auto; }
+
+  .slide .kicker, .slide .content > *{
+    opacity:0; transform:translateY(16px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1);
+  }
+  .slide.is-active .kicker, .slide.is-active .content > *{
+    opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+  }
+  .slide .kicker{ transition-delay:0s; }
+  .slide .content > *:nth-child(1){ transition-delay:.1s; }
+  .slide .content > *:nth-child(2){ transition-delay:.22s; }
+  .slide .content > *:nth-child(3){ transition-delay:.34s; }
+  .slide .content > *:nth-child(4){ transition-delay:.46s; }
+  .slide .content > *:nth-child(5){ transition-delay:.58s; }
+  .slide .content > *:nth-child(6){ transition-delay:.7s; }
+
+  .kicker{
+    display:flex; align-items:baseline; gap:.6rem; margin-bottom:1.1rem;
+    font-family:'IBM Plex Mono'; font-size:.9rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); font-weight:600;
+  }
+  .kicker .num{ color:var(--copper); }
+  .kicker .sep{ color:var(--line); }
+  .kicker .of{ color:var(--ink-faint); font-weight:500; text-transform:none; letter-spacing:0; }
+
+  .content{ max-width:52rem; }
+  .content.wide{ max-width:none; width:100%; }
+
+  h2.title{ font-size:clamp(2.6rem, 4.8vw, 3.9rem); font-weight:600; line-height:1.08; margin-bottom:.9rem; }
+  p.lede{ font-size:1.08rem; line-height:1.6; color:var(--ink-soft); max-width:38rem; margin-bottom:1.6rem; }
+
+  ul.list{ list-style:none; margin:0; padding:0; display:grid; gap:.55rem; align-content:start; }
+  ul.list.cherry-anim{ gap:.85rem; }
+  ul.list.cherry-anim li{
+    padding:1rem 1.3rem 1rem 1.5rem; background:var(--panel); border:1px solid var(--line);
+    border-left:4px solid var(--copper); border-radius:10px; box-shadow:var(--shadow);
+    font-size:1.28rem; line-height:1.4;
+    opacity:0; transform:translateX(-18px); transition:opacity .5s ease, transform .5s ease;
+  }
+  ul.list.cherry-anim li::before{ display:none; }
+  ul.list.cherry-anim b{ font-size:1.28rem; }
+  .is-active ul.list.cherry-anim li:nth-child(1){ transition-delay:.15s; }
+  .is-active ul.list.cherry-anim li:nth-child(2){ transition-delay:.35s; }
+  .is-active ul.list.cherry-anim li:nth-child(3){ transition-delay:.55s; }
+  .is-active ul.list.cherry-anim li:nth-child(4){ transition-delay:.75s; }
+  .is-active ul.list.cherry-anim li:nth-child(5){ transition-delay:.95s; }
+  .is-active ul.list.cherry-anim li:nth-child(6){ transition-delay:1.15s; }
+  .is-active ul.list.cherry-anim li{ opacity:1; transform:none; }
+  ul.list li{
+    position:relative; padding-left:1.3rem; line-height:1.5; color:var(--ink);
+    font-size:1rem;
+  }
+  ul.list li::before{
+    content:''; position:absolute; left:0; top:.55em; width:6px; height:6px; border-radius:50%;
+    background:var(--copper);
+  }
+  ul.list.tight li{ font-size:.95rem; }
+  ul.list b{ color:var(--ink); }
+  ul.list.numbered li{ padding-left:0; }
+  ul.list.numbered li::before{ display:none; }
+  .machine-diagram .mcallout{
+    position:absolute; transform:translate(-50%,-50%);
+    width:1.7rem; height:1.7rem; border-radius:50%;
+    background:var(--accent); color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono'; font-size:.8rem; font-weight:700;
+    box-shadow:0 2px 6px rgba(0,0,0,.4); border:2px solid var(--paper);
+  }
+  ul.list.numbered .pn{
+    display:inline-flex; align-items:center; justify-content:center; width:1.15rem; height:1.15rem;
+    border-radius:50%; background:var(--accent); color:var(--paper); font-family:'IBM Plex Mono';
+    font-size:.62rem; font-weight:700; margin-right:.45rem; vertical-align:middle;
+  }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:2.2rem; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:1.3rem 1.4rem; box-shadow:var(--shadow);
+  }
+  .card h3{ font-size:1.05rem; font-weight:600; margin-bottom:.4rem; }
+  .card .eyebrow{ font-family:'IBM Plex Mono'; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.5rem; display:block; }
+
+  .stat{
+    font-family:'IBM Plex Mono'; font-variant-numeric:tabular-nums;
+    font-size:1.9rem; font-weight:600; color:var(--accent); line-height:1;
+  }
+  .stat small{ display:block; font-family:'Work Sans'; font-size:.82rem; font-weight:500; color:var(--ink-faint); margin-top:.4rem; letter-spacing:.02em; }
+
+  /* controls */
+  #controls{
+    position:fixed; left:64px; right:0; bottom:0; z-index:40; height:68px;
+    display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0 1.6rem;
+    background:linear-gradient(0deg, var(--paper) 60%, transparent);
+  }
+  #controls .side{ display:flex; align-items:center; gap:.7rem; }
+  .nav-btn{
+    border:1px solid var(--line); background:var(--panel); color:var(--ink);
+    width:40px; height:40px; border-radius:50%; cursor:pointer; font-size:1rem;
+    display:flex; align-items:center; justify-content:center; transition:all .2s ease;
+  }
+  .nav-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .nav-btn:disabled{ opacity:.35; cursor:default; }
+  #slidepos{ font-family:'IBM Plex Mono'; font-size:.95rem; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+  #modulename{ font-family:'IBM Plex Mono'; font-size:.88rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); }
+  #hint{ font-size:.86rem; color:var(--ink-faint); flex-shrink:0; }
+  #hint kbd{ font-family:'IBM Plex Mono'; background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:.05rem .35rem; }
+
+  /* ============ diagram components ============ */
+
+  /* gauge */
+  .gauge-row{ display:flex; gap:2.6rem; flex-wrap:wrap; }
+  .gauge{ display:flex; flex-direction:column; align-items:center; gap:.7rem; }
+  .gauge .dial{
+    --pct:0; width:140px; height:80px; position:relative; overflow:hidden;
+  }
+  .gauge .dial::before{
+    content:''; position:absolute; inset:0 0 auto 0; width:140px; height:140px; border-radius:50%;
+    background:conic-gradient(from 180deg, var(--accent) calc(var(--pct)*1%), var(--panel-2) 0);
+    -webkit-mask:radial-gradient(closest-side, transparent 71%, #000 72%);
+            mask:radial-gradient(closest-side, transparent 71%, #000 72%);
+  }
+  .gauge .needle{
+    position:absolute; left:70px; bottom:0; width:2px; height:58px; background:var(--copper);
+    transform-origin:bottom center; transform:rotate(0deg); border-radius:2px;
+    transition:transform 1.1s cubic-bezier(.34,1.4,.4,1);
+  }
+  .gauge .hub{ position:absolute; left:64px; bottom:-6px; width:12px; height:12px; border-radius:50%; background:var(--copper); }
+  .gauge .label{ font-family:'IBM Plex Mono'; font-size:.72rem; color:var(--ink-soft); text-align:center; }
+  .gauge .label b{ display:block; color:var(--ink); font-size:.95rem; margin-top:.15rem; }
+
+  /* thermometer */
+  .therm-row{ display:flex; align-items:flex-end; gap:2.8rem; }
+  .therm{ display:flex; flex-direction:column; align-items:center; gap:.7rem; }
+  .therm .tube{
+    width:22px; height:150px; border-radius:11px; background:var(--panel-2); position:relative;
+    border:1px solid var(--line); overflow:hidden;
+  }
+  .therm .fill{
+    position:absolute; left:0; right:0; bottom:0; height:0%;
+    background:linear-gradient(180deg, var(--copper), var(--accent));
+    transition:height 1.3s cubic-bezier(.4,0,.2,1);
+  }
+  .therm .bulb{ width:34px; height:34px; border-radius:50%; background:var(--copper); margin-top:-8px; position:relative; z-index:2; box-shadow:0 0 0 4px var(--paper); }
+  .therm .label{ font-family:'IBM Plex Mono'; font-size:.78rem; text-align:center; color:var(--ink-soft); }
+  .therm .label b{ display:block; color:var(--ink); font-size:1rem; }
+
+  /* freshness chart */
+  .chart-wrap{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.6rem 1.8rem; box-shadow:var(--shadow); }
+  .chart-wrap svg{ width:100%; height:220px; display:block; }
+  .chart-wrap .draw{ stroke-dasharray:600; stroke-dashoffset:600; transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .1s; }
+  .is-active .chart-wrap .draw{ stroke-dashoffset:0; }
+  .chart-legend{ display:flex; gap:1.6rem; margin-top:.6rem; font-size:.8rem; color:var(--ink-soft); }
+  .chart-legend span::before{ content:''; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:.4rem; vertical-align:middle; }
+  .chart-legend .l1::before{ background:var(--accent); }
+  .chart-legend .l2::before{ background:var(--copper); }
+
+  /* bean compare */
+  .photo-frame{ width:100%; object-fit:cover; display:block; border-radius:var(--radius); box-shadow:var(--shadow); }
+  .kaldi-story{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; height:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.6rem 1.2rem; }
+  .kaldi-frame{ text-align:center; }
+  .kaldi-icon{ font-size:2.6rem; line-height:1; margin-bottom:.5rem; display:inline-block; animation:kaldi-bounce 2.2s ease-in-out infinite; }
+  .kaldi-frame.f2 .kaldi-icon{ animation-delay:.25s; }
+  .kaldi-frame.f3 .kaldi-icon{ animation-delay:.5s; }
+  @keyframes kaldi-bounce{ 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(-7px) rotate(-4deg);} }
+  .kaldi-frame p{ font-size:.82rem; color:var(--ink-soft); max-width:11rem; margin:0 auto; line-height:1.4; }
+  .kaldi-arrow{ color:var(--copper); font-size:1.2rem; line-height:1; }
+  .bean-photo{ width:100%; height:120px; object-fit:cover; display:block; border-radius:12px; margin-bottom:.9rem; }
+  .process-photo{ width:100%; height:150px; object-fit:cover; display:block; }
+  .roast-photo{ width:100%; max-width:56rem; margin:0 auto; height:70px; object-fit:cover; border-radius:12px; box-shadow:var(--shadow); display:block; }
+  .roast-flow{ display:flex; flex-direction:column; gap:.25rem; }
+  .roast-flow-step{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:.6rem .9rem;
+    box-shadow:var(--shadow); display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap;
+  }
+  .roast-flow-step.highlight{ border-color:var(--accent); }
+  .roast-flow-step b{ font-family:'IBM Plex Mono'; font-size:.68rem; color:var(--copper); flex-shrink:0; }
+  .roast-flow-step span{ font-weight:600; font-size:.86rem; flex-shrink:0; }
+  .roast-flow-step small{ font-size:.7rem; color:var(--ink-faint); margin-left:auto; text-align:right; }
+  .roast-flow-arrow{ display:flex; flex-direction:column; align-items:center; gap:3px; height:26px; justify-content:center; }
+  .roast-flow-arrow i{
+    width:0; height:0; border-left:9px solid transparent; border-right:9px solid transparent;
+    border-top:11px solid var(--accent); opacity:.2; animation:roastFlowPulse 1.4s ease-in-out infinite;
+  }
+  .roast-flow-arrow i:nth-child(2){ animation-delay:.15s; }
+  .roast-flow-arrow i:nth-child(3){ animation-delay:.3s; }
+  @keyframes roastFlowPulse{ 0%,100%{ opacity:.15; } 50%{ opacity:1; } }
+  .tools-hero{ width:100%; max-width:44rem; margin:0 auto 1.4rem; height:200px; object-fit:cover; border-radius:var(--radius); box-shadow:var(--shadow); display:block; }
+  .compare-wrap{ display:flex; gap:2.6rem; margin-top:1.5rem; justify-content:center; flex-wrap:wrap; }
+  .compare-block{ flex:1; min-width:230px; max-width:340px; }
+  .compare-block h4{ font-family:'IBM Plex Mono'; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin-bottom:.7rem; text-align:center; }
+  .compare-line{ display:flex; align-items:center; gap:.7rem; margin-bottom:.6rem; }
+  .compare-line .name{ width:60px; font-size:.82rem; color:var(--ink-soft); flex-shrink:0; }
+  .compare-track{ flex:1; height:10px; background:var(--panel-2); border-radius:6px; overflow:hidden; }
+  .compare-fill{ height:100%; width:0%; border-radius:6px; transition:width 1.3s cubic-bezier(.4,0,.2,1); }
+  .is-active .compare-fill{ width:var(--w); }
+  .compare-fill.arabica{ background:var(--accent); }
+  .compare-fill.robusta{ background:var(--copper); }
+  .compare-val{ width:64px; font-family:'IBM Plex Mono'; font-size:.76rem; color:var(--ink-faint); flex-shrink:0; text-align:right; }
+  .species-row{ display:flex; gap:1.6rem; justify-content:center; }
+  .species-photo{ width:100%; max-width:20rem; height:auto; display:block; border-radius:var(--radius); box-shadow:var(--shadow); }
+  .variety-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  .ar-ro-layout{ display:grid; grid-template-columns:1fr 3fr 1fr; gap:1.4rem; align-items:center; }
+  .ar-ro-side{ display:flex; flex-direction:column; gap:.9rem; }
+  .ar-ro-fact{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:.7rem .8rem; font-size:.82rem; color:var(--ink-soft); box-shadow:var(--shadow); }
+  .ar-ro-fact .eyebrow{ font-family:'IBM Plex Mono'; font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--copper); display:block; margin-bottom:.25rem; }
+  .variety-grid img{ width:100%; border-radius:14px; box-shadow:var(--shadow); display:block; }
+  .bean-row{ display:flex; gap:2.2rem; }
+  .bean-card{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.4rem 1.5rem; box-shadow:var(--shadow); }
+  .bean-shape{ width:64px; height:88px; margin-bottom:.9rem; position:relative; }
+  .bean-shape .body{
+    position:absolute; inset:0; border-radius:50% 50% 50% 50% / 55% 55% 45% 45%;
+    background:linear-gradient(160deg, var(--copper-soft), var(--copper));
+  }
+  .bean-shape .crease{ position:absolute; left:50%; top:14%; bottom:14%; width:2px; background:var(--paper); transform:translateX(-50%) rotate(6deg); border-radius:2px; }
+  .bean-card h3{ display:flex; align-items:center; gap:.6rem; }
+  .bean-card .dot{ width:8px; height:8px; border-radius:50%; background:var(--copper); }
+
+  /* processing steps */
+  .process-row{ display:flex; gap:1.4rem; }
+  .process-card{
+    flex:1; text-align:center; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:0 0 1.3rem; box-shadow:var(--shadow); overflow:hidden; position:relative; cursor:pointer;
+    opacity:0; transform:translateY(14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .is-active .process-row .process-card:nth-child(1){ transition-delay:.08s; }
+  .is-active .process-row .process-card:nth-child(2){ transition-delay:.24s; }
+  .is-active .process-row .process-card:nth-child(3){ transition-delay:.4s; }
+  .is-active .process-row .process-card{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .process-card .play-badge{
+    position:absolute; top:75px; left:50%; transform:translate(-50%,-50%);
+    width:38px; height:38px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:.9rem; pointer-events:none;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .process-card:hover .play-badge{ transform:translate(-50%,-50%) scale(1.12); background:rgba(0,0,0,.7); }
+  .video-modal{ position:fixed; inset:0; background:rgba(20,16,12,.85); z-index:200; display:none; align-items:center; justify-content:center; }
+  .video-modal.is-open{ display:flex; }
+  .video-modal-inner{ position:relative; max-width:92vw; max-height:88vh; }
+  .video-modal-inner video{ max-width:92vw; max-height:80vh; border-radius:14px; display:block; background:#000; box-shadow:0 24px 70px rgba(0,0,0,.45); }
+  .video-modal-full{
+    display:block; text-align:center; margin-top:.9rem; font-family:'IBM Plex Mono'; font-size:.82rem;
+    color:var(--paper); text-decoration:underline; text-underline-offset:3px;
+  }
+  .video-modal-full:hover{ color:var(--accent-soft, var(--accent)); }
+  .video-modal-caption{
+    display:block; text-align:center; margin-top:.7rem; font-family:'IBM Plex Mono'; font-size:.78rem;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--paper); opacity:.8;
+  }
+  #videoModalClose{
+    position:absolute; top:-44px; right:0; width:36px; height:36px; border-radius:50%; border:none;
+    background:var(--panel); color:var(--ink); font-size:1.3rem; line-height:1; cursor:pointer;
+  }
+  #videoModalClose:hover{ background:var(--accent); color:var(--accent-ink); }
+  .process-icon{ width:64px; height:64px; margin:0 auto .9rem; position:relative; }
+  .icon-sun{ width:40px; height:40px; border-radius:50%; background:var(--copper); margin:12px auto; position:relative; animation:spin 8s linear infinite; }
+  .icon-sun::before,.icon-sun::after{ content:''; position:absolute; inset:-14px; border-radius:50%; border:2px dashed var(--copper-soft); }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .icon-drop{ width:22px; height:28px; border-radius:50% 50% 50% 0; background:var(--accent); margin:8px auto; transform:rotate(45deg); animation:drop 1.6s ease-in-out infinite; }
+  @keyframes drop{ 0%,100%{ transform:rotate(45deg) translateY(0); opacity:1;} 50%{ transform:rotate(45deg) translateY(10px); opacity:.55; } }
+  .icon-honey{ width:44px; height:36px; border-radius:0 0 50% 50%/0 0 60% 60%; background:linear-gradient(180deg, var(--copper-soft), var(--copper)); margin:14px auto; position:relative; overflow:hidden; }
+  .icon-honey::after{ content:''; position:absolute; inset:0; background:linear-gradient(120deg, transparent 40%, rgba(255,255,255,.4) 50%, transparent 60%); animation:sheen 2.4s ease-in-out infinite; }
+  @keyframes sheen{ 0%{ transform:translateX(-100%); } 100%{ transform:translateX(100%); } }
+
+  /* five elements */
+  .orbit{ position:relative; width:460px; height:460px; margin:0 auto; max-width:100%; }
+  .orbit-lines{ position:absolute; inset:0; width:100%; height:100%; z-index:1; }
+  .orbit-lines .draw{ stroke-dasharray:210; stroke-dashoffset:210; transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1); }
+  .is-active .orbit-lines .draw{ stroke-dashoffset:0; }
+  .orbit-lines line:nth-child(1){ transition-delay:.1s; }
+  .orbit-lines line:nth-child(2){ transition-delay:.3s; }
+  .orbit-lines line:nth-child(3){ transition-delay:.5s; }
+  .orbit-lines line:nth-child(4){ transition-delay:.7s; }
+  .orbit-lines line:nth-child(5){ transition-delay:.9s; }
+  .orbit .core{
+    position:absolute; left:50%; top:50%; width:140px; height:140px; margin:-70px 0 0 -70px;
+    border-radius:50%; background:var(--accent); color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center; text-align:center; font-family:'Fraunces'; font-weight:600; font-size:1.15rem;
+    box-shadow:var(--shadow); z-index:2; padding:.5rem;
+    opacity:0; transform:scale(.5); transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .is-active .orbit .core{ opacity:1; transform:scale(1); }
+  .orbit .node{
+    position:absolute; width:142px; padding:.85rem 1rem; background:var(--panel); border:1px solid var(--line);
+    border-radius:14px; font-size:1rem; font-weight:600; text-align:center; box-shadow:var(--shadow); z-index:2;
+    animation:pulse 3.6s ease-in-out infinite; opacity:0; transition:opacity .5s ease;
+  }
+  .is-active .orbit .node{ opacity:1; }
+  .orbit .node b{ display:block; color:var(--copper); font-family:'IBM Plex Mono'; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.2rem; }
+  @keyframes pulse{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+  .orbit .n1{ top:-4%; left:50%; transform:translateX(-50%); }
+  .orbit .n2{ top:22%; right:-6%; }
+  .orbit .n3{ bottom:22%; right:-6%; }
+  .orbit .n4{ bottom:-4%; left:50%; transform:translateX(-50%); }
+  .orbit .n5{ top:22%; left:-6%; }
+  .is-active .orbit .n1{ transition-delay:.2s; }
+  .is-active .orbit .n2{ transition-delay:.4s; }
+  .is-active .orbit .n3{ transition-delay:.6s; }
+  .is-active .orbit .n4{ transition-delay:.8s; }
+  .is-active .orbit .n5{ transition-delay:1s; }
+  .orbit .n2{ animation-delay:.3s; } .orbit .n3{ animation-delay:.6s; } .orbit .n4{ animation-delay:.9s; } .orbit .n5{ animation-delay:1.2s; }
+
+  /* extraction cups */
+  .cup-row{ display:flex; gap:1.6rem; }
+  .cup-card{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.3rem; box-shadow:var(--shadow); }
+  .cup{ width:120px; height:92px; border-radius:0 0 48px 48px; margin:0 auto 1.1rem; position:relative; border:3px solid var(--line); border-top:none; }
+  .cup .crema{ position:absolute; left:3px; right:3px; top:-13px; height:26px; border-radius:50%; }
+  .crema-pale{ background:#e7c98f; }
+  .crema-ideal{ background:#b9793c; }
+  .crema-dark{ background:#4a2f1c; }
+  .drip{ display:flex; justify-content:center; gap:10px; height:32px; }
+  .drip i{ width:7px; height:16px; border-radius:3px; background:var(--accent); animation:fall 1.1s ease-in infinite; }
+  .drip i:nth-child(2){ animation-delay:.15s; } .drip i:nth-child(3){ animation-delay:.3s; }
+  @keyframes fall{ 0%{ transform:translateY(-10px); opacity:0;} 40%{ opacity:1;} 100%{ transform:translateY(16px); opacity:0;} }
+  .fast .drip i{ animation-duration:.55s; }
+  .slow .drip i{ animation-duration:2s; }
+
+  /* machine / grinder */
+  .machine-wrap{ display:flex; gap:3rem; align-items:flex-end; }
+  .machine{ width:220px; height:140px; background:var(--panel-2); border:1px solid var(--line); border-radius:12px 12px 6px 6px; position:relative; box-shadow:var(--shadow); }
+  .machine .grouphead{ position:absolute; bottom:-18px; left:30px; width:46px; height:26px; background:var(--copper); border-radius:4px; }
+  .machine .portafilter{ position:absolute; bottom:-38px; left:36px; width:34px; height:16px; background:var(--ink-faint); border-radius:0 0 10px 10px; transition:transform .8s ease; }
+  .is-active .machine .portafilter{ transform:translateY(2px); }
+  .machine .gauge-mini{ position:absolute; top:16px; left:18px; width:34px; height:34px; border-radius:50%; border:3px solid var(--accent); }
+  .machine .gauge-mini::after{ content:''; position:absolute; left:50%; top:50%; width:12px; height:2px; background:var(--copper); transform-origin:left center; animation:needle-mini 4s ease-in-out infinite; }
+  @keyframes needle-mini{ 0%,100%{ transform:rotate(-30deg);} 50%{ transform:rotate(40deg);} }
+  .machine .wand{ position:absolute; right:14px; top:20px; width:6px; height:60px; background:var(--ink-faint); border-radius:3px; }
+  .machine .keypad{ position:absolute; top:18px; right:56px; display:grid; grid-template-columns:repeat(3,7px); gap:4px; }
+  .machine .keypad i{ width:7px; height:7px; border-radius:50%; background:var(--copper-soft); }
+
+  .grinder{ width:120px; position:relative; }
+  .grinder .hopper{ width:80px; height:70px; margin:0 auto; background:linear-gradient(180deg, var(--accent-soft), var(--panel-2)); clip-path:polygon(10% 0,90% 0,65% 100%,35% 100%); position:relative; overflow:hidden; border:1px solid var(--line); }
+  .grinder .bean{ position:absolute; width:6px; height:8px; border-radius:50%; background:var(--copper); left:50%; animation:sink 2.2s linear infinite; }
+  .grinder .bean:nth-child(1){ left:30%; animation-delay:0s; }
+  .grinder .bean:nth-child(2){ left:50%; animation-delay:.7s; }
+  .grinder .bean:nth-child(3){ left:66%; animation-delay:1.4s; }
+  @keyframes sink{ 0%{ top:-10px; opacity:0;} 15%{ opacity:1;} 100%{ top:65px; opacity:0;} }
+  .grinder .body{ width:70px; height:54px; margin:0 auto; background:var(--panel-2); border:1px solid var(--line); border-radius:0 0 14px 14px; position:relative; }
+  .grinder .body::after{ content:''; position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; border:3px solid var(--copper); border-top-color:transparent; animation:spin 1.4s linear infinite; }
+  .grinder .chute{ width:16px; height:20px; margin:0 auto; background:var(--ink-faint); border-radius:0 0 6px 6px; }
+  .grinder .label{ text-align:center; font-family:'IBM Plex Mono'; font-size:.7rem; color:var(--ink-soft); margin-top:.6rem; }
+
+  .type-row{ display:flex; gap:1.2rem; margin-top:1.6rem; }
+  .type-card{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:1rem; text-align:center; }
+  .type-card b{ display:block; font-size:.85rem; margin-bottom:.2rem; }
+  .type-card span{ font-size:.82rem; color:var(--ink-faint); }
+
+  /* grind dial + texture */
+  .dial-wrap{ display:flex; align-items:center; gap:3rem; }
+  .knob{ width:150px; height:150px; border-radius:50%; background:var(--panel-2); border:1px solid var(--line); position:relative; box-shadow:var(--shadow); }
+  .knob .pointer{ position:absolute; left:50%; top:8px; width:4px; height:40px; background:var(--copper); border-radius:2px; transform-origin:50% 67px; transform:translateX(-50%) rotate(-50deg); transition:transform 1.4s cubic-bezier(.34,1.3,.4,1); }
+  .is-active .knob .pointer{ transform:translateX(-50%) rotate(50deg); }
+  .knob .tick{ position:absolute; left:50%; top:50%; font-family:'IBM Plex Mono'; font-size:.64rem; color:var(--ink-faint); transform-origin:0 0; }
+  .texture-row{ display:flex; gap:.5rem; align-items:flex-end; height:120px; }
+  .texture-col{ flex:1; display:flex; flex-wrap:wrap; align-content:flex-end; gap:2px; justify-content:center; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:.5rem; height:100%; }
+  .texture-col i{ background:var(--copper); border-radius:1px; }
+  .texture-label{ text-align:center; font-family:'IBM Plex Mono'; font-size:.76rem; color:var(--ink-faint); margin-top:.4rem; }
+
+  /* tamping */
+  .tamp-row{ display:flex; gap:1.4rem; }
+  .tamp-card{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.6rem 1.2rem; text-align:center; box-shadow:var(--shadow); }
+  .basket{ width:140px; height:62px; margin:0 auto .7rem; background:var(--panel-2); border:1px solid var(--line); border-radius:0 0 28px 28px; position:relative; overflow:hidden; }
+  .basket .bed{ position:absolute; left:0; right:0; bottom:0; height:70%; background:var(--copper); transition:clip-path 1s ease; }
+  .bed-channel{ clip-path:polygon(0 30%,45% 30%,45% 100%,55% 100%,55% 30%,100% 30%,100% 100%,0 100%); }
+  .bed-uneven{ clip-path:polygon(0 55%,100% 10%,100% 100%,0 100%); }
+  .bed-even{ clip-path:polygon(0 20%,100% 20%,100% 100%,0 100%); }
+
+  /* milk */
+  .milk-wrap{ display:flex; gap:3.2rem; align-items:center; }
+  .pitcher{ width:110px; height:120px; position:relative; }
+  .pitcher .jug{ position:absolute; bottom:0; width:110px; height:96px; border-radius:0 0 42px 42px / 0 0 60px 60px; background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:2px solid var(--line); overflow:hidden; }
+  .pitcher .milk{ position:absolute; bottom:0; left:0; right:0; height:70%; background:linear-gradient(180deg,#fbf6ea,#e9dcc0); }
+  .pitcher .swirl{ position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, rgba(255,255,255,.55), transparent 30%, rgba(255,255,255,.35) 60%, transparent 90%); animation:spin 2.4s linear infinite; mix-blend-mode:soft-light; }
+  .pitcher .spout{ position:absolute; top:14px; right:-6px; width:20px; height:10px; background:var(--panel-2); border:2px solid var(--line); border-radius:0 8px 8px 0; }
+
+  /* trainers */
+  .trainer-row{ display:flex; gap:1.6rem; }
+  .trainer-card{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.5rem; box-shadow:var(--shadow); }
+  .trainer-avatar{ width:56px; height:56px; border-radius:50%; background:linear-gradient(160deg, var(--accent-soft), var(--accent)); margin-bottom:.9rem; display:flex; align-items:center; justify-content:center; font-family:'Fraunces'; font-weight:600; color:var(--accent-ink); font-size:1.3rem; object-fit:cover; }
+  .trainer-card-photo, .trainer-card-split{ position:relative; overflow:hidden; padding:0; display:flex; flex-direction:column; }
+  .trainer-card-photo{ min-height:460px; }
+  .trainer-photo-section{ position:relative; flex:1 1 230px; min-height:230px; }
+  .trainer-photo-fill{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .trainer-scrim{
+    position:absolute; left:0; right:0; bottom:0; z-index:2; padding:1.3rem 1.4rem 1.1rem;
+    background:linear-gradient(0deg, rgba(18,15,11,.88), rgba(18,15,11,.45) 65%, transparent);
+  }
+  .trainer-scrim h3{ color:#fff; }
+  .trainer-scrim p{ color:#e9e3d5; font-size:.92rem; margin:.3rem 0 0; }
+  .trainer-scrim .badge{ background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.35); }
+  .trainer-body{ padding:1.1rem 1.3rem 1.3rem; background:var(--panel); }
+  .trainer-card-composite{ position:relative; overflow:hidden; padding:0; min-height:460px; }
+  .composite-cert{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+  .composite-photo{ position:absolute; left:0; right:0; bottom:0; width:100%; height:54%; object-fit:cover; object-position:top center; box-shadow:0 -8px 24px -10px rgba(0,0,0,.35); z-index:1; }
+  .composite-scrim{ z-index:2; }
+  .badge{ display:inline-flex; align-items:center; gap:.35rem; font-family:'IBM Plex Mono'; font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; background:var(--copper-soft); color:var(--copper); padding:.25rem .6rem; border-radius:999px; margin-top:.6rem; }
+
+  /* pathway */
+  .path-row{ display:flex; align-items:center; gap:.8rem; }
+  .path-step{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:1.1rem 1.2rem; text-align:center; position:relative; }
+  .path-step.current{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); box-shadow:var(--shadow); transform:scale(1.05); }
+  .path-step.current .path-dur{ color:var(--accent-ink); opacity:.85; }
+  .path-arrow{ color:var(--ink-faint); font-size:1.2rem; }
+  .growth-row{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:.55rem; }
+  .growth-step{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:.6rem 1rem;
+    text-align:center; min-width:96px; box-shadow:var(--shadow);
+  }
+  .growth-step b{ display:block; font-family:'IBM Plex Mono'; font-size:.66rem; color:var(--copper); margin-bottom:.15rem; }
+  .growth-step span{ font-size:.8rem; font-weight:600; }
+  .path-dur{ font-family:'IBM Plex Mono'; font-size:.72rem; color:var(--ink-faint); margin-top:.3rem; }
+
+  /* connect-discover-respond loop */
+  .loop{ display:flex; justify-content:center; gap:1.6rem; }
+  .loop-step{ width:150px; text-align:center; }
+  .loop-circle{ width:84px; height:84px; border-radius:50%; margin:0 auto .8rem; background:var(--panel); border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-family:'Fraunces'; font-size:1.6rem; color:var(--accent); animation:ring 2.8s ease-in-out infinite; }
+  @keyframes ring{ 0%,100%{ box-shadow:0 0 0 0 var(--accent-soft);} 50%{ box-shadow:0 0 0 10px transparent;} }
+  .loop-step:nth-child(2) .loop-circle{ animation-delay:.4s; }
+  .loop-step:nth-child(3) .loop-circle{ animation-delay:.8s; }
+
+  /* stepper (barista routine) */
+  .stepper{ display:grid; grid-template-columns:repeat(6,1fr); gap:.7rem; }
+  .step{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:.75rem .7rem; font-size:.76rem; line-height:1.35; position:relative; }
+  .step .n{ font-family:'IBM Plex Mono'; color:var(--copper); font-weight:600; display:block; margin-bottom:.25rem; }
+
+  /* drink glasses */
+  .drink-row{ display:flex; gap:1.6rem; justify-content:center; }
+  .drink{ text-align:center; }
+  .glass{ width:64px; height:104px; border:2px solid rgba(255,255,255,.55); border-top:none; border-radius:0 0 16px 16px; position:relative; overflow:hidden; background:linear-gradient(135deg, rgba(255,255,255,.4), rgba(255,255,255,.08)); box-shadow:inset 0 0 0 1px var(--line); margin:0 auto .7rem; }
+  .glass .layer{ position:absolute; left:0; right:0; bottom:0; transition:height 1.1s cubic-bezier(.4,0,.2,1); }
+  .glass .layer:nth-child(1){ z-index:4; }
+  .glass .layer:nth-child(2){ z-index:3; }
+  .glass .layer:nth-child(3){ z-index:2; }
+  .glass .layer:nth-child(4){ z-index:1; }
+  .l-espresso{ background:#4a2f1c; }
+  .l-water{ background:#cfe0da; }
+  .l-milk{ background:#f2e6cd; }
+  .l-foam{ background:#fbf6ea; }
+  .l-chocolate{ background:#6b3a1f; }
+  .l-cream{ background:#f7f0e0; }
+  .l-whiskey{ background:#c9822e; }
+  .l-icecream{ background:#f3d9d5; }
+  .drink .name{ font-weight:600; font-size:.85rem; }
+  .drink .ratio{ font-family:'IBM Plex Mono'; font-size:.66rem; color:var(--ink-faint); }
+
+  /* grooming icons */
+  .groom-row{ display:flex; gap:1.2rem; }
+  .groom-card{
+    flex:1; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.2rem; text-align:center; box-shadow:var(--shadow);
+    opacity:0; transform:translateY(14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .is-active .groom-row .groom-card:nth-child(1){ transition-delay:.08s; }
+  .is-active .groom-row .groom-card:nth-child(2){ transition-delay:.2s; }
+  .is-active .groom-row .groom-card:nth-child(3){ transition-delay:.32s; }
+  .is-active .groom-row .groom-card:nth-child(4){ transition-delay:.44s; }
+  .is-active .groom-row .groom-card{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .groom-icon{ width:46px; height:46px; margin:0 auto .7rem; border-radius:12px; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:var(--accent); }
+
+  .defect-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  .defect-tile{
+    position:relative; aspect-ratio:1/1; border-radius:16px; overflow:hidden; box-shadow:var(--shadow);
+    opacity:0; transform:translateY(14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .defect-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .defect-scrim{
+    position:absolute; left:0; right:0; bottom:0; padding:.9rem .8rem .7rem;
+    background:linear-gradient(to top, rgba(20,14,8,.82), rgba(20,14,8,0)); color:#fff;
+  }
+  .defect-scrim h3{ font-size:.88rem; margin-bottom:.15rem; }
+  .defect-scrim p{ font-size:.7rem; opacity:.88; line-height:1.35; }
+  .is-active .defect-grid .defect-tile:nth-child(1){ transition-delay:.08s; }
+  .is-active .defect-grid .defect-tile:nth-child(2){ transition-delay:.2s; }
+  .is-active .defect-grid .defect-tile:nth-child(3){ transition-delay:.32s; }
+  .is-active .defect-grid .defect-tile:nth-child(4){ transition-delay:.44s; }
+  .is-active .defect-grid .defect-tile{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+
+  /* roast bar */
+  .roast-bar{ height:34px; border-radius:17px; background:linear-gradient(90deg,#8a9a6a,#d8c08a,#c99a5e,#a06b3a,#5c3a22,#241712); position:relative; box-shadow:var(--shadow); }
+  .roast-bar .marker{ position:absolute; top:-8px; width:2px; height:50px; background:var(--ink); opacity:.5; }
+  .roast-ticks{ display:flex; justify-content:space-between; margin-top:.6rem; font-family:'IBM Plex Mono'; font-size:.78rem; color:var(--ink-faint); }
+
+  /* workspace zones */
+  .bar-top{ position:relative; width:100%; max-width:640px; margin:0 auto; height:220px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .zone{ position:absolute; border:1px dashed var(--line); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-size:.68rem; color:var(--ink-soft); text-align:center; padding:.3rem; animation:glow 6s ease-in-out infinite; }
+  @keyframes glow{ 0%,100%{ border-color:var(--line); background:transparent;} 16%{ border-color:var(--accent); background:var(--accent-soft);} 33%{ border-color:var(--line); background:transparent;} }
+  .z1{ left:4%; top:12%; width:22%; height:32%; animation-delay:0s; }
+  .z2{ left:30%; top:8%; width:20%; height:40%; animation-delay:1.5s; }
+  .z3{ left:54%; top:12%; width:22%; height:32%; animation-delay:3s; }
+  .z4{ left:80%; top:16%; width:16%; height:26%; animation-delay:4.5s; }
+  .z5{ left:12%; bottom:8%; width:76%; height:20%; animation-delay:2.2s; }
+
+  /* cover */
+  .cover{ align-items:center; text-align:left; position:relative; overflow:hidden; }
+  .cover-logo-big{ width:470px; height:auto; flex-shrink:0; position:relative; z-index:1; }
+  .cover-bg-photo{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;
+    opacity:.16; filter:sepia(.25) saturate(1.1);
+    animation:cover-bg-pan 22s ease-in-out infinite alternate;
+  }
+  @keyframes cover-bg-pan{ 0%{ transform:scale(1.05) translate(0,0);} 100%{ transform:scale(1.16) translate(-1.5%,-1.5%);} }
+  .cover .content{ max-width:62rem; margin:0 auto; position:relative; z-index:1; display:flex; align-items:center; gap:3.2rem; }
+  .cover-icon{ width:64px; height:auto; margin:0 auto 1.1rem; display:block; opacity:.85; }
+  .cover-welcome{ font-family:'Fraunces'; font-style:italic; font-weight:300; font-size:1.5rem; color:var(--ink-soft); margin-bottom:.3rem; }
+  .cover-mark{ font-family:'IBM Plex Mono'; font-size:.9rem; letter-spacing:.16em; text-transform:uppercase; color:var(--copper); margin-bottom:1.4rem; }
+  .cover h1{ font-size:clamp(2.6rem,6vw,4.4rem); font-weight:600; line-height:1.03; }
+  .cover h1 em{ font-style:italic; font-weight:300; color:var(--accent); }
+  .cover .steam{ position:relative; width:2px; height:60px; margin:1.6rem 0 0 10px; }
+  .cover .steam i{ position:absolute; bottom:0; left:0; width:2px; height:22px; background:linear-gradient(180deg, transparent, var(--ink-faint)); border-radius:2px; animation:steam 3s ease-in-out infinite; opacity:.6; }
+  .cover .steam i:nth-child(2){ left:-8px; animation-delay:.6s; }
+  .cover .steam i:nth-child(3){ left:8px; animation-delay:1.2s; }
+  @keyframes steam{ 0%{ transform:translateY(0) scaleY(1); opacity:0;} 30%{ opacity:.7;} 100%{ transform:translateY(-40px) scaleY(1.3); opacity:0;} }
+  .cover-foot{ margin-top:2.2rem; font-family:'IBM Plex Mono'; font-size:.78rem; color:var(--ink-faint); }
+
+  .varietree{ display:flex; flex-direction:column; gap:2rem; }
+  .varietree-branch{ display:flex; flex-direction:column; align-items:flex-start; gap:0; }
+  .varietree-root{
+    font-family:'Fraunces'; font-weight:600; font-size:1.3rem; padding:.5rem 1.4rem;
+    border-radius:999px; color:var(--accent-ink); display:inline-block;
+    opacity:0; transform:translateY(-8px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  .is-active .varietree-root{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .varietree-root.arabica{ background:var(--accent); }
+  .varietree-root.robusta{ background:var(--copper); }
+  .varietree-line{
+    width:2px; height:20px; background:var(--line); margin-left:1.7rem;
+    transform:scaleY(0); transform-origin:top; transition:transform .3s ease; transition-delay:.3s;
+  }
+  .is-active .varietree-line{ transform:scaleY(1); }
+  .varietree-leaves{
+    display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.7rem; padding-left:1.7rem;
+    border-left:2px solid var(--line);
+  }
+  .varietree-leaf{
+    font-family:'IBM Plex Mono'; font-size:.82rem; font-weight:600; letter-spacing:.02em;
+    padding:.5rem 1.1rem; border-radius:999px; background:var(--panel); border:1px solid var(--line);
+    color:var(--ink); box-shadow:var(--shadow); display:inline-flex; align-items:center; gap:.5rem;
+    opacity:0; transform:translateX(-14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  .varietree-leaf.has-photo{ padding-left:.3rem; }
+  .varietree-leaf.has-photo img{ width:26px; height:26px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .is-active .varietree-leaf{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .is-active .varietree-leaves .varietree-leaf:nth-child(1){ transition-delay:.4s; }
+  .is-active .varietree-leaves .varietree-leaf:nth-child(2){ transition-delay:.48s; }
+  .is-active .varietree-leaves .varietree-leaf:nth-child(3){ transition-delay:.56s; }
+  .is-active .varietree-leaves .varietree-leaf:nth-child(4){ transition-delay:.64s; }
+  .is-active .varietree-leaves .varietree-leaf:nth-child(5){ transition-delay:.72s; }
+  .is-active .varietree-leaves .varietree-leaf:nth-child(6){ transition-delay:.8s; }
+
+  .sob-gallery{ position:relative; width:100%; max-width:420px; max-height:56vh; aspect-ratio:4/5; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel); margin:0 auto; }
+  .sob-slide{
+    position:absolute; inset:0; opacity:0;
+    transform:translateX(70px) scale(.8) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1);
+    pointer-events:none;
+  }
+  .sob-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .sob-slide.is-active{
+    opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    z-index:2; pointer-events:auto;
+  }
+  .sob-slide.is-leaving{
+    opacity:0; transform:translateX(-70px) scale(.8) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    z-index:1;
+  }
+
+  .roastlvl-tile{
+    aspect-ratio:1/1; border-radius:16px; overflow:hidden; box-shadow:var(--shadow);
+    background:var(--panel); display:flex; align-items:center; justify-content:center;
+  }
+  .roastlvl-tile img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .roastlvl-caption{
+    text-align:center; margin-top:.6rem; font-family:'IBM Plex Mono'; font-size:.76rem;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--copper); font-weight:600;
+  }
+  .stage-photo{
+    position:absolute; width:170px; height:170px; border-radius:50%; object-fit:cover;
+    box-shadow:var(--shadow); border:3px solid var(--paper);
+    opacity:0; transform:translateY(14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .is-active .stage-photo{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .stage-card{
+    position:absolute; width:120px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:.5rem .6rem; text-align:center;
+    box-shadow:var(--shadow); opacity:0;
+    transform:translateY(14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .5s ease, transform .55s cubic-bezier(.34,1.56,.64,1);
+  }
+  .stage-card b{ display:block; font-family:'IBM Plex Mono'; font-size:.64rem; color:var(--copper); }
+  .stage-card span{ font-size:.76rem; font-weight:600; }
+  .is-active .stage-card{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .is-active .stage-card:nth-of-type(1){ transition-delay:.1s; }
+  .is-active .stage-card:nth-of-type(2){ transition-delay:.25s; }
+  .is-active .stage-card:nth-of-type(3){ transition-delay:.4s; }
+  .is-active .stage-card:nth-of-type(4){ transition-delay:.55s; }
+  .is-active .stage-card:nth-of-type(5){ transition-delay:.7s; }
+  .is-active .stage-card:nth-of-type(6){ transition-delay:.85s; }
+
+  .agenda-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+  .agenda-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:.9rem 1rem;
+    opacity:0; transform:translateY(14px) translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1));
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .is-active .agenda-grid .agenda-item:nth-child(1){ transition-delay:.05s; }
+  .is-active .agenda-grid .agenda-item:nth-child(2){ transition-delay:.13s; }
+  .is-active .agenda-grid .agenda-item:nth-child(3){ transition-delay:.21s; }
+  .is-active .agenda-grid .agenda-item:nth-child(4){ transition-delay:.29s; }
+  .is-active .agenda-grid .agenda-item:nth-child(5){ transition-delay:.37s; }
+  .is-active .agenda-grid .agenda-item:nth-child(6){ transition-delay:.45s; }
+  .is-active .agenda-grid .agenda-item:nth-child(7){ transition-delay:.53s; }
+  .is-active .agenda-grid .agenda-item:nth-child(8){ transition-delay:.61s; }
+  .is-active .agenda-grid .agenda-item{ opacity:1; transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  .agenda-item b{ font-family:'IBM Plex Mono'; color:var(--copper); font-size:.72rem; display:block; margin-bottom:.3rem; }
+  .agenda-item span{ font-size:.86rem; font-weight:500; }
+
+  .end .content{ text-align:center; margin:0 auto; }
+
+  [data-editkey]{ transform:translate(var(--edx,0px), var(--edy,0px)) scale(var(--esc,1)); }
+  body.edit-mode [data-editkey]{ outline:1px dashed transparent; cursor:grab; }
+  body.edit-mode [data-editkey]:active{ cursor:grabbing; }
+  body.edit-mode [data-editkey]:hover{ outline-color:var(--accent-soft, var(--accent)); }
+  body.edit-mode .slide.is-active *{ cursor:grab; }
+  body.edit-mode .slide.is-active *:hover{ outline:1px dashed var(--accent-soft, var(--accent)); outline-offset:1px; }
+  [data-editkey].is-edit-selected{ outline:2px solid var(--accent) !important; outline-offset:2px; }
+  #editToggleBtn.is-current{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  #editPanel{
+    position:fixed; right:18px; bottom:96px; z-index:80;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:.7rem; box-shadow:var(--shadow); display:none; flex-direction:column; gap:.4rem;
+    font-family:'IBM Plex Mono'; width:150px;
+  }
+  #editPanel.is-open{ display:flex; }
+  #editPanel .ep-key{ font-size:.68rem; color:var(--ink-faint); text-align:center; word-break:break-all; margin-bottom:.15rem; }
+  #editPanel .ep-row{ display:flex; gap:.3rem; justify-content:center; }
+  #editPanel button{
+    flex:1; height:28px; border-radius:6px; border:1px solid var(--line); background:var(--paper);
+    color:var(--ink); cursor:pointer; font-family:inherit; font-size:.8rem;
+  }
+  #editPanel button:hover{ border-color:var(--accent); color:var(--accent); }
+  #editPanel .ep-reset{ color:var(--copper); }
+  .align-guide-v{ position:fixed; top:0; bottom:0; width:1px; background:var(--accent); z-index:90; pointer-events:none; }
+  .align-guide-h{ position:fixed; left:0; right:0; height:1px; background:var(--accent); z-index:90; pointer-events:none; }
+</style>
+
+<div id="topbar"><i id="progressbar"></i></div>
+<nav id="rail" aria-label="Module navigation"></nav>
+
+<main id="stage"></main>
+
+<div id="controls">
+  <div class="side">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide">&#8592;</button>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide">&#8594;</button>
+    <span id="slidepos"></span>
+  </div>
+  <span id="modulename"></span>
+  <span id="hint"><kbd>&#8592;</kbd> <kbd>&#8594;</kbd> to navigate</span>
+</div>
+
+<div id="editPanel">
+  <div class="ep-key" id="epKey"></div>
+  <div class="ep-row"><button data-act="up">&#8593;</button></div>
+  <div class="ep-row">
+    <button data-act="left">&#8592;</button>
+    <button data-act="down">&#8595;</button>
+    <button data-act="right">&#8594;</button>
+  </div>
+  <div class="ep-row">
+    <button data-act="smaller" title="Scale down">A&minus;</button>
+    <button data-act="bigger" title="Scale up">A+</button>
+  </div>
+  <div class="ep-row">
+    <button data-act="wsmaller" title="Width down">W&minus;</button>
+    <button data-act="wbigger" title="Width up">W+</button>
+  </div>
+  <div class="ep-row">
+    <button data-act="hsmaller" title="Height down">H&minus;</button>
+    <button data-act="hbigger" title="Height up">H+</button>
+  </div>
+  <div class="ep-row">
+    <button data-act="fontsmaller" title="Font size down">F&minus;</button>
+    <button data-act="fontbigger" title="Font size up">F+</button>
+  </div>
+  <div class="ep-row">
+    <button data-act="reset" class="ep-reset">Reset</button>
+    <button data-act="close">Done</button>
+  </div>
+</div>
+
+<div id="videoModal" class="video-modal">
+  <div class="video-modal-inner">
+    <button id="videoModalClose" aria-label="Close video">&times;</button>
+    <video id="videoModalPlayer" controls playsinline></video>
+    <div id="videoModalCaption" class="video-modal-caption"></div>
+    <a id="videoModalFull" class="video-modal-full" href="#" target="_blank" rel="noopener">Watch full-length, real-time video &#8599;</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------------- slide content ----------------
+  var S = []; // {module:0-8 or 'start'/'end', title, html}
+
+  function slide(mod, html){ S.push({mod:mod, html:html}); }
+
+  // ---- Front matter ----
+  slide('start', `
+    <div class="slide cover">
+      <img class="cover-bg-photo" src="assets/img/img-001.jpg" alt="">
+      <div class="content">
+        <img class="cover-logo-big" src="assets/img/img-002.png" alt="BUONO Coffee Academy">
+        <div class="cover-text">
+          <div class="cover-welcome">Welcome to</div>
+          <div class="cover-mark">BUONO Coffee Academy &middot; SCA Barista Skills Program</div>
+          <h1>Foundation<br><em>in coffee.</em></h1>
+          <div class="steam"><i></i><i></i><i></i></div>
+          <div class="cover-foot">Kandy, Sri Lanka &nbsp;&middot;&nbsp; Est. 8 years in specialty coffee</div>
+        </div>
+      </div>
+    </div>`);
+
+  slide('start', `
+    <div class="slide">
+      <div class="kicker"><span>Who We Are</span></div>
+      <div class="content">
+        <h2 class="title">Kandy's first dedicated barista academy.</h2>
+        <p class="lede">We've spent nearly eight years behind the bar before we ever stood in front of a classroom &mdash; and we built BUONO Coffee Academy to pass that working knowledge on, one skilled barista at a time.</p>
+        <div class="grid3">
+          <div class="card"><span class="stat">1<sup style="font-size:1rem">st</sup><small>Barista academy in Kandy</small></span></div>
+          <div class="card"><span class="stat">8<small>Years in the coffee industry</small></span></div>
+          <div class="card"><span class="stat">8<small>Students per class, by design</small></span></div>
+        </div>
+        <div class="card" style="margin-top:1.4rem;">
+          <span class="eyebrow">Specialty coffee, defined</span>
+          <p style="font-size:.9rem; color:var(--ink-soft); line-height:1.5;">The SCA calls a coffee <b>specialty</b> when it scores <b>80 or above</b> on their 100-point grading scale, can be traced back to where it was grown, and has been assessed for quality at every stage from farm to cup.</p>
+        </div>
+      </div>
+    </div>`);
+
+  slide('start', `
+    <div class="slide">
+      <div class="kicker"><span>The SCA Pathway</span></div>
+      <div class="content wide">
+        <h2 class="title">Three levels. You're starting at the first.</h2>
+        <p class="lede">The Specialty Coffee Association's Barista Skills program is a globally recognised, structured pathway. Today's course sits at the foundation of it.</p>
+        <div class="path-row">
+          <div class="path-step current">Foundation<div class="path-dur">This course &middot; 1 month, with cafe experience</div></div>
+          <span class="path-arrow">&#8594;</span>
+          <div class="path-step">Intermediate<div class="path-dur">SCA: 14 guided-learning hours</div></div>
+          <span class="path-arrow">&#8594;</span>
+          <div class="path-step">Professional<div class="path-dur">SCA: 21 guided-learning hours</div></div>
+        </div>
+        <p style="margin-top:1.6rem; font-size:.86rem; color:var(--ink-faint);">Assessed by written &amp; practical exam &middot; certified by the SCA and by BUONO Coffee Academy (TVEC approved).</p>
+        <p style="margin-top:.5rem; font-size:.86rem; color:var(--ink-faint);">Foundation is quoted as course length; Intermediate and Professional are SCA guided-learning hours &mdash; two different measures, not points on the same scale.</p>
+      </div>
+    </div>`);
+
+  slide('start', `
+    <div class="slide">
+      <div class="kicker"><span>Today's Map</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">Eight modules, start to finish.</h2>
+        <div class="agenda-grid">
+          <div class="agenda-item"><b>01</b><span>Introduction to Coffee</span></div>
+          <div class="agenda-item"><b>02</b><span>Espresso Fundamentals</span></div>
+          <div class="agenda-item"><b>03</b><span>Espresso Equipment</span></div>
+          <div class="agenda-item"><b>04</b><span>Grinder Adjustment</span></div>
+          <div class="agenda-item"><b>05</b><span>Milk Techniques</span></div>
+          <div class="agenda-item"><b>06</b><span>Basic Drinks Preparation</span></div>
+          <div class="agenda-item"><b>07</b><span>Hygiene &amp; Safety</span></div>
+          <div class="agenda-item"><b>08</b><span>Customer Service</span></div>
+        </div>
+      </div>
+    </div>`);
+
+  // ---- Module 1: Introduction to Coffee ----
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 1 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title">From cherry to cup.</h2>
+        <div class="grid2">
+          <figure style="margin:0;"><img class="photo-frame" style="aspect-ratio:3/2;" src="assets/img/img-003.jpg" alt="Kaldi and his dancing goats — a 1922 illustration of the coffee discovery legend"><figcaption style="font-size:.72rem; color:var(--ink-faint); text-align:center; margin-top:.5rem; font-style:italic;">&ldquo;Kaldi and His Dancing Goats,&rdquo; 1922 &mdash; public domain</figcaption></figure>
+          <div>
+            <p class="lede" style="margin-bottom:1rem;">Legend says an Ethiopian goat-herder named <b>Kaldi</b> discovered coffee in <b>c. 850 AD</b>, after noticing his goats grow lively on the berries of a wild tree.</p>
+            <p class="lede" style="margin-bottom:1rem;">Coffee reached Sri Lanka through the Dutch, who planted it here after taking Ceylon from the Portuguese in <b>1656</b>.</p>
+            <p style="font-size:.86rem; color:var(--ink-soft); line-height:1.5; margin-bottom:1rem;">By around 1870 Ceylon was one of the world&rsquo;s largest coffee exporters &mdash; roughly 118 million lb a year. Coffee leaf rust (<i>Hemileia vastatrix</i>) appeared at Madulsima in <b>1869</b>; by 1890 about 90% of the coffee land had been abandoned and replanted with tea &mdash; which is how Sri Lanka became a tea country.</p>
+            <ul class="list tight">
+              <li>Coffee is a <b>seed</b> from the coffee cherry &mdash; the fruit of the coffee plant.</li>
+              <li>Over <b>125 species</b> exist; only two are grown commercially.</li>
+              <li>An evergreen plant, living up to <b>50 years</b>.</li>
+              <li>Takes <b>3&ndash;5 years</b> to bear its first fruit.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 2 of 12</span></div>
+      <div class="content wide" style="position:relative; min-height:32rem;">
+        <h2 class="title" style="margin-bottom:1.1rem;">From flower to ripe cherry.</h2>
+        <img class="stage-photo" src="assets/img/img-004.jpg" alt="The growth stages of a coffee plant, arranged in a circle" style="left:calc(50% - 85px); top:8rem;">
+        <div class="stage-card" style="left:calc(50% - 60px); top:0rem;"><b>1</b><span>Flower</span></div>
+        <div class="stage-card" style="left:calc(50% + 200px); top:3rem;"><b>2</b><span>Green Cherry</span></div>
+        <div class="stage-card" style="left:calc(50% + 230px); top:12rem;"><b>3</b><span>Ripening</span></div>
+        <div class="stage-card" style="left:calc(50% - 60px); top:19rem;"><b>4</b><span>Ripe Cherry</span></div>
+        <div class="stage-card" style="left:2rem; top:26rem;"><b>5</b><span>Parchment</span></div>
+        <div class="stage-card" style="right:2rem; top:0rem;"><b>6</b><span>Roasted Bean</span></div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 3 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.3rem;">Inside the coffee cherry.</h2>
+        <div class="grid2" style="align-items:start;">
+          <video class="photo-frame" style="aspect-ratio:4/5; max-height:440px; width:auto; margin:0 auto;" autoplay muted loop playsinline aria-label="Exploded view of a coffee cherry showing its skin, pulp, mucilage, parchment, silverskin and bean layers"><source src="assets/video/video-001.mp4" type="video/mp4"></video>
+          <ul class="list cherry-anim">
+            <li><b>Skin (Exocarp)</b> &mdash; the outer red or yellow peel.</li>
+            <li><b>Pulp (Mesocarp)</b> &mdash; sweet fruit flesh beneath it.</li>
+            <li><b>Mucilage</b> &mdash; a sticky, sugary layer.</li>
+            <li><b>Parchment (Endocarp)</b> &mdash; a papery hull around the bean.</li>
+            <li><b>Silverskin</b> &mdash; a thin membrane hugging the seed.</li>
+            <li><b>The Bean</b> &mdash; the seed itself, what we roast and grind.</li>
+          </ul>
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 4 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.1rem;">The two commercial species.</h2>
+        <div class="species-row">
+          <img class="species-photo" src="assets/img/img-005.jpg" alt="Arabica coffee bean — the most widely grown species, higher acidity, more complexity, wider range of flavours">
+          <img class="species-photo" src="assets/img/img-006.jpg" alt="Robusta coffee bean — stronger, more resilient, higher in caffeine, more bitter and heavier bodied">
+        </div>
+        <p style="margin-top:1.1rem; font-size:.9rem; color:var(--ink-soft); text-align:center;"><b>Arabica</b> &mdash; <i>Coffea arabica</i> &nbsp;&middot;&nbsp; <b>Robusta</b> &mdash; <i>Coffea canephora</i></p>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 5 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1rem;">Arabica vs Robusta, side by side.</h2>
+        <div class="ar-ro-layout">
+          <div class="ar-ro-side">
+            <div class="ar-ro-fact"><span class="eyebrow">Altitude</span>800&ndash;2200m</div>
+            <div class="ar-ro-fact"><span class="eyebrow">Climate</span>Cool</div>
+            <div class="ar-ro-fact"><span class="eyebrow">Bean Shape</span>Oval, curved centre cut</div>
+            <div class="ar-ro-fact"><span class="eyebrow">Flavour</span>Complex, fruity, floral, acidic</div>
+          </div>
+          <img class="photo-frame" style="width:100%; display:block;" src="assets/img/img-007.jpg" alt="Arabica and Robusta coffee plants, cherries and bean shapes compared">
+          <div class="ar-ro-side">
+            <div class="ar-ro-fact"><span class="eyebrow">Altitude</span>200&ndash;800m</div>
+            <div class="ar-ro-fact"><span class="eyebrow">Climate</span>Warm, humid</div>
+            <div class="ar-ro-fact"><span class="eyebrow">Bean Shape</span>Rounder, smaller, straight cut</div>
+            <div class="ar-ro-fact"><span class="eyebrow">Flavour</span>Bold, earthy, bitter, full-bodied</div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 6 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.5rem;">Inside each species: the named varieties.</h2>
+        <div class="grid2" style="align-items:center; gap:2.6rem;">
+        <div>
+        <div class="varietree">
+          <div class="varietree-branch">
+            <div class="varietree-root arabica">Arabica</div>
+            <div class="varietree-line"></div>
+            <div class="varietree-leaves">
+              <span class="varietree-leaf has-photo"><img src="assets/img/img-008.jpg" alt="">Typica</span>
+              <span class="varietree-leaf has-photo"><img src="assets/img/img-009.jpg" alt="">Bourbon</span>
+              <span class="varietree-leaf">Caturra</span>
+              <span class="varietree-leaf">Catua&iacute;</span>
+              <span class="varietree-leaf has-photo"><img src="assets/img/img-010.jpg" alt="">Gesha</span>
+              <span class="varietree-leaf">SL28</span>
+            </div>
+          </div>
+          <div class="varietree-branch">
+            <div class="varietree-root robusta">Robusta</div>
+            <div class="varietree-line"></div>
+            <div class="varietree-leaves">
+              <span class="varietree-leaf">Nganda</span>
+              <span class="varietree-leaf">Kouilou</span>
+              <span class="varietree-leaf">Erecta</span>
+              <span class="varietree-leaf">Conilon</span>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:1.4rem; font-size:.85rem; color:var(--ink-faint);">Arabica has been selectively bred for over a century, so it carries far more named varieties. Robusta&rsquo;s are fewer but just as distinct in cup character.</p>
+        </div>
+        <img class="photo-frame" style="width:100%; display:block;" src="assets/img/img-011.jpg" alt="Reference chart of Arabica and Robusta coffee varieties, their traits, and bean shape comparison">
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 7 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.3rem;">Single origin, or a blend?</h2>
+        <div class="grid2" style="align-items:start; gap:2.4rem;">
+          <div class="sob-gallery">
+            <div class="sob-slide is-active"><img src="assets/img/img-012.jpg" alt="Craft your brew, from bean to cup — single origin and blend side by side"></div>
+            <div class="sob-slide"><img src="assets/img/img-013.jpg" alt="Single origin coffee cherries picked by hand, straight from the farm"></div>
+            <div class="sob-slide"><img src="assets/img/img-014.jpg" alt="A blend brings different beans together into one consistent cup"></div>
+            <div class="sob-slide"><img src="assets/img/img-015.jpg" alt="Choosing your brew — single origin for exploring, blend for everyday comfort"></div>
+            <div class="sob-slide"><img src="assets/img/img-016.jpg" alt="Whether single origin or a blend, what matters is the joy in the cup"></div>
+          </div>
+          <div>
+            <div class="grid2" style="gap:1rem;">
+              <div class="ar-ro-side">
+                <h4 style="font-family:'IBM Plex Mono'; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:.2rem;">Single Origin</h4>
+                <div class="ar-ro-fact"><span class="eyebrow">Traceability</span>One farm, one harvest, one story</div>
+                <div class="ar-ro-fact"><span class="eyebrow">Flavour</span>Distinct, can shift season to season</div>
+                <div class="ar-ro-fact"><span class="eyebrow">Best for</span>Exploring what one origin tastes like</div>
+              </div>
+              <div class="ar-ro-side">
+                <h4 style="font-family:'IBM Plex Mono'; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--copper); margin-bottom:.2rem;">Blend</h4>
+                <div class="ar-ro-fact"><span class="eyebrow">Traceability</span>Multiple origins, combined by a roaster</div>
+                <div class="ar-ro-fact"><span class="eyebrow">Flavour</span>Balanced and consistent, cup to cup</div>
+                <div class="ar-ro-fact"><span class="eyebrow">Best for</span>A reliable house espresso or filter</div>
+              </div>
+            </div>
+            <div class="card" style="margin-top:1.1rem;">
+              <h3 style="font-size:.95rem; margin-bottom:.4rem;">Sri Lanka&rsquo;s own single-origin story</h3>
+              <p style="font-size:.83rem; color:var(--ink-soft); line-height:1.5;">Since coffee leaf rust pushed the island toward tea, coffee has stayed a niche crop &mdash; but small estates in Kandy, Uva and Nuwara Eliya are now reviving it as specialty single-origin: grown above 1,000m, mostly by smallholder farmers, cupping above 90 on the SCA scale, with notes of dark chocolate, spice and dried fruit.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 8 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.5rem;">Processing: how the cherry becomes a bean.</h2>
+        <div class="process-row">
+          <div class="process-card" data-video="dry"><img class="process-photo" src="assets/img/img-017.jpg" alt="Dry process coffee cherries drying in the sun"><span class="play-badge">&#9658;</span><h3 style="margin:.9rem 0 .4rem;">Dry (Natural)</h3><p style="font-size:.84rem; color:var(--ink-soft); padding:0 1rem;">Whole cherries sun-dried before the seed is removed &mdash; fruitier, heavier body.</p></div>
+          <div class="process-card" data-video="wet"><img class="process-photo" src="assets/img/img-018.jpg" alt="Wet process coffee cherries being washed"><span class="play-badge">&#9658;</span><h3 style="margin:.9rem 0 .4rem;">Wet (Washed)</h3><p style="font-size:.84rem; color:var(--ink-soft); padding:0 1rem;">Fruit fermented and washed away before drying &mdash; cleaner, brighter cup.</p></div>
+          <div class="process-card" data-video="honey"><img class="process-photo" src="assets/img/img-019.jpg" alt="Honey process coffee drying with mucilage"><span class="play-badge">&#9658;</span><h3 style="margin:.9rem 0 .4rem;">Honey</h3><p style="font-size:.84rem; color:var(--ink-soft); padding:0 1rem;">Some fruit mucilage left on during drying &mdash; balance of sweetness and clarity.</p></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 9 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.5rem;">Beans that shouldn't make the cut.</h2>
+        <div class="defect-grid">
+          <div class="defect-tile"><img src="assets/img/img-020.jpg" alt="Immature, under-ripe coffee beans, pale and shrivelled"><div class="defect-scrim"><h3>Immature Beans</h3><p>Under-ripe, papery and thin-tasting.</p></div></div>
+          <div class="defect-tile"><img src="assets/img/img-021.jpg" alt="Black beans, over-fermented or spoiled"><div class="defect-scrim"><h3>Black Beans</h3><p>Over-fermented, sour or musty.</p></div></div>
+          <div class="defect-tile"><img src="assets/img/img-022.jpg" alt="Insect-damaged coffee beans, bored through by pests"><div class="defect-scrim"><h3>Insect Damage</h3><p>Bored beans, off flavours.</p></div></div>
+          <div class="defect-tile"><img src="assets/img/img-023.jpg" alt="Broken bean fragments from processing or hulling"><div class="defect-scrim"><h3>Broken Beans</h3><p>Roast unevenly, burn easily.</p></div></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 10 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.3rem;">Roasting sets the flavour ceiling.</h2>
+        <div class="grid2" style="align-items:start; gap:2.2rem; margin-bottom:1.2rem;">
+          <div class="roast-flow">
+            <div class="roast-flow-step"><b>01</b><span>Drying</span><small>~375&ndash;420&deg;F &mdash; moisture leaves the bean</small></div>
+            <div class="roast-flow-arrow"><i></i><i></i><i></i></div>
+            <div class="roast-flow-step"><b>02</b><span>Yellowing</span><small>Maillard reaction begins, hay to toast aroma</small></div>
+            <div class="roast-flow-arrow"><i></i><i></i><i></i></div>
+            <div class="roast-flow-step"><b>03</b><span>First Crack</span><small>~385&ndash;400&deg;F &mdash; technically drinkable</small></div>
+            <div class="roast-flow-arrow"><i></i><i></i><i></i></div>
+            <div class="roast-flow-step"><b>04</b><span>Development</span><small>Sweetness, acidity &amp; bitterness balance</small></div>
+            <div class="roast-flow-arrow"><i></i><i></i><i></i></div>
+            <div class="roast-flow-step highlight"><b>05</b><span>Second Crack</span><small>~435&ndash;446&deg;F &mdash; oils surface, dark roast</small></div>
+          </div>
+          <video class="photo-frame" style="width:100%; aspect-ratio:16/9;" controls loop playsinline aria-label="Coffee beans tumbling and roasting inside a drum roaster, viewed through the sight glass — press play to hear it"><source src="assets/video/video-002.mp4" type="video/mp4"></video>
+        </div>
+        <p class="lede" style="text-align:center; margin:0 auto 1rem;">Lighter roasts stay <b>more acidic</b>; darker roasts turn <b>more bitter</b> &mdash; everything in between is a choice, not an accident.</p>
+        <img class="roast-photo" src="assets/img/img-024.jpg" alt="Coffee beans ranging from green to dark roast">
+        <div class="roast-ticks"><span>Green</span><span>Yellow</span><span>Light</span><span>Medium</span><span>Dark</span><span>Burnt</span></div>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 11 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.2rem;">Reading a roast profile.</h2>
+        <div style="display:flex; gap:1.6rem; justify-content:center; align-items:flex-start; flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="width:300px; height:300px; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel); display:flex; align-items:center; justify-content:center;">
+              <img src="assets/img/img-025.jpg" alt="The 5 levels of coffee roast, from light to dark, with their flavour, acidity, body and bitterness compared" style="width:100%; height:100%; object-fit:cover; object-position:top; display:block;">
+            </div>
+            <div style="margin-top:.6rem; font-family:'IBM Plex Mono'; font-size:.76rem; letter-spacing:.06em; text-transform:uppercase; color:var(--copper); font-weight:600;">The 5 Roast Levels</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="width:300px; height:300px; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel); display:flex; align-items:center; justify-content:center;">
+              <img src="assets/img/img-026.jpg" alt="Coffee roast levels from light (cinnamon) to dark (French/Italian), showing bean colour progression and flavour character" style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+            </div>
+            <div style="margin-top:.6rem; font-family:'IBM Plex Mono'; font-size:.76rem; letter-spacing:.06em; text-transform:uppercase; color:var(--copper); font-weight:600;">Bean Colour by Roast</div>
+          </div>
+        </div>
+        <p style="font-size:.82rem; color:var(--ink-soft); line-height:1.5; text-align:center; max-width:52rem; margin:1.2rem auto 0;">A <b>roast profile</b> is the temperature/time curve a roaster follows: beans <b>charge</b> into the hot drum, dip to a <b>turning point</b> (~150&ndash;170&deg;C), then climb through drying, browning and development. The <b>development ratio</b> &mdash; the share of the roast spent after first crack &mdash; is usually kept to <b>15&ndash;25%</b>, and is one of the biggest levers over final flavour.</p>
+      </div>
+    </div>`);
+
+  slide(1, `
+    <div class="slide">
+      <div class="kicker"><span class="num">01</span><span class="sep">/</span><span>Introduction to Coffee</span><span class="of">&middot; 12 of 12</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.3rem;">Freshness fades fast &mdash; store with intent.</h2>
+        <div class="grid2">
+          <div class="chart-wrap">
+            <svg viewBox="0 0 320 180" fill="none">
+              <line x1="10" y1="160" x2="310" y2="160" stroke="var(--line)" stroke-width="1"/>
+              <polyline class="draw" points="10,30 70,60 130,95 190,130 250,150 305,158" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <polyline class="draw" points="10,120 70,55 130,45 190,90 250,135 305,155" stroke="var(--copper)" stroke-width="3" fill="none" stroke-linecap="round" style="transition-delay:.3s"/>
+              <text x="10" y="175" fill="var(--ink-faint)" font-size="9" font-family="IBM Plex Mono">Wk1</text>
+              <text x="290" y="175" fill="var(--ink-faint)" font-size="9" font-family="IBM Plex Mono">Wk5</text>
+            </svg>
+            <div class="chart-legend"><span class="l1">Overall freshness</span><span class="l2">Flavour in the cup</span></div>
+          </div>
+          <ul class="list">
+            <li>Coffee's enemies: <b>water, air, heat, light</b> and <b>surrounding smells</b>.</li>
+            <li>Flavour peaks around <b>week two</b>, then declines steadily.</li>
+            <li><b>Degassing</b> &mdash; a fresh roast keeps releasing CO2 for days, so coffee tastes poor straight off the roaster and settles over the first week or two.</li>
+            <li>Store whole beans &mdash; never pre-ground &mdash; in a <b>dark, dry, cool</b> place.</li>
+            <li><b>Never the fridge or freezer</b> &mdash; condensation ruins beans. Airtight, at room temperature.</li>
+          </ul>
+        </div>
+      </div>
+    </div>`);
+
+  // ---- Module 2: Espresso Fundamentals ----
+  slide(2, `
+    <div class="slide">
+      <div class="kicker"><span class="num">02</span><span class="sep">/</span><span>Espresso Fundamentals</span><span class="of">&middot; 1 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1rem;">What is espresso?</h2>
+        <div class="grid2" style="align-items:center; gap:2rem;">
+          <div>
+            <p class="lede" style="margin-bottom:1.1rem;">Finely ground coffee, compacted into a portafilter, with hot water forced through it under pressure &mdash; a concentrated coffee beverage built on five interdependent parts.</p>
+            <div style="width:100%; aspect-ratio:2.5/1; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel); display:flex; align-items:center; justify-content:center;">
+              <img src="assets/img/img-027.jpg" alt="The five parts of espresso laid out together: the barista, the bean, the grinder, the machine, and water" style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+            </div>
+          </div>
+          <div class="orbit">
+            <svg class="orbit-lines" viewBox="0 0 420 420">
+              <line class="draw" x1="210" y1="210" x2="210" y2="18" stroke="var(--line)" stroke-width="2"/>
+              <line class="draw" x1="210" y1="210" x2="386" y2="127" stroke="var(--line)" stroke-width="2"/>
+              <line class="draw" x1="210" y1="210" x2="386" y2="293" stroke="var(--line)" stroke-width="2"/>
+              <line class="draw" x1="210" y1="210" x2="210" y2="402" stroke="var(--line)" stroke-width="2"/>
+              <line class="draw" x1="210" y1="210" x2="34" y2="127" stroke="var(--line)" stroke-width="2"/>
+            </svg>
+            <div class="core">The<br>Espresso</div>
+            <div class="node n1"><b>01</b>The Bean</div>
+            <div class="node n2"><b>02</b>The Grinder</div>
+            <div class="node n3"><b>03</b>The Machine</div>
+            <div class="node n4"><b>04</b>The Water</div>
+            <div class="node n5"><b>05</b>The Barista</div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(2, `
+    <div class="slide">
+      <div class="kicker"><span class="num">02</span><span class="sep">/</span><span>Espresso Fundamentals</span><span class="of">&middot; 2 of 5</span></div>
+      <div class="content wide" style="position:relative;">
+        <h2 class="title" style="margin-bottom:1.5rem;">The recipe, by the numbers.</h2>
+        <div class="grid4">
+          <div class="card"><span class="eyebrow">Dose in</span><span class="stat mono">14&ndash;20g<small>Double shot</small></span></div>
+          <div class="card"><span class="eyebrow">Yield out</span><span class="stat mono">21&ndash;50g<small>Double shot &middot; full acceptable range</small></span></div>
+          <div class="card"><span class="eyebrow">Shot time</span><span class="stat mono">20&ndash;30s<small>Extraction window</small></span></div>
+          <div class="card"><span class="eyebrow">Brew ratio</span><span class="stat mono">1:1.5&ndash;2.5<small>Coffee to water, by weight</small></span></div>
+        </div>
+        <p style="margin-top:1.3rem; font-size:.84rem; color:var(--ink-faint);">Single shot reference: 7&ndash;10g dose in, 10.5&ndash;25g yield out. Based on SCA suggested brew parameters. These are the full acceptable ranges &mdash; the narrower ideal target sits inside them (see &ldquo;Reading the shot&rdquo;).</p>
+      <div class="espresso-numbers-photo" style="position:absolute; top:6rem; right:5.4rem; width:17rem; max-width:28%; aspect-ratio:843/1264; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel);">
+        <img src="assets/img/img-028.jpg" alt="An infographic titled The Perfect Espresso Shot, showing six key variables: 14-20 grams of fresh coffee dose, fine grind size, 92-96 degrees C water temperature, 30-40 lbs of tamping pressure, 25-30 second brew time, and 25-30ml shot volume." style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+      </div>
+      </div>
+    </div>`);
+
+  slide(2, `
+    <div class="slide">
+      <div class="kicker"><span class="num">02</span><span class="sep">/</span><span>Espresso Fundamentals</span><span class="of">&middot; 3 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">Water: 90% of the cup.</h2>
+        <div class="therm-row">
+          <div class="therm">
+            <div class="tube"><div class="fill" style="--h:88%;"></div></div>
+            <div class="bulb"></div>
+            <div class="label">Water in espresso<b>88&ndash;90%</b></div>
+          </div>
+          <div class="water-cup-photo" style="width:180px; aspect-ratio:496/614; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); flex-shrink:0;">
+            <img src="assets/img/img-029.jpg" alt="A clear glass cup with a water level marked at 90 percent, illustrating how much of an espresso shot is water." style="width:100%; height:100%; object-fit:cover; display:block;">
+          </div>
+          <div class="card" style="align-self:center; max-width:22rem;">
+            <span class="eyebrow">Ideal brew temperature</span>
+            <span class="stat">92&ndash;96&deg;C</span>
+            <p style="font-size:.86rem; color:var(--ink-soft); margin-top:.8rem;">Water carries almost the entire cup &mdash; its temperature and quality shape everything the bean can offer.</p>
+            <p style="font-size:.86rem; color:var(--ink-soft); margin-top:.6rem;">Filter it. Mineral content (TDS) changes how the cup tastes, and hard water leaves limescale inside the machine.</p>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(2, `
+    <div class="slide">
+      <div class="kicker"><span class="num">02</span><span class="sep">/</span><span>Espresso Fundamentals</span><span class="of">&middot; 4 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">Reading the shot.</h2>
+        <p class="lede">Taste every shot. The numbers get you close &mdash; your palate tells you where the extraction actually landed.</p>
+        <div class="cup-row">
+          <div class="cup-card fast">
+            <div class="cup"><div class="crema crema-pale"></div></div>
+            <div class="drip"><i></i><i></i><i></i></div>
+            <h3 style="text-align:center; font-size:.95rem;">Under-Extracted</h3>
+            <p style="font-size:.8rem; color:var(--ink-soft); text-align:center;">Sour, watery, pale crema. Cause: coarse grind or too little dose.</p>
+          </div>
+          <div class="cup-card">
+            <div class="cup"><div class="crema crema-ideal"></div></div>
+            <div class="drip"><i></i><i></i><i></i></div>
+            <h3 style="text-align:center; font-size:.95rem;">Ideal</h3>
+            <p style="font-size:.8rem; color:var(--ink-soft); text-align:center;">Target: 25&ndash;35mL in 20&ndash;30s &mdash; the narrow sweet spot inside the wider acceptable yield range. Balanced acidity, sweetness, bitterness.</p>
+          </div>
+          <div class="cup-card slow">
+            <div class="cup"><div class="crema crema-dark"></div></div>
+            <div class="drip"><i></i><i></i><i></i></div>
+            <h3 style="text-align:center; font-size:.95rem;">Over-Extracted</h3>
+            <p style="font-size:.8rem; color:var(--ink-soft); text-align:center;">Bitter, burnt crema. Cause: fine grind or too much dose.</p>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(2, `
+    <div class="slide">
+      <div class="kicker"><span class="num">02</span><span class="sep">/</span><span>Espresso Fundamentals</span><span class="of">&middot; 5 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.4rem;">The routine that keeps every cup the same.</h2>
+        <div class="stepper">
+          <div class="step"><span class="n">01</span>Remove portafilter, flush the group</div>
+          <div class="step"><span class="n">02</span>Wipe the basket clean &amp; dry</div>
+          <div class="step"><span class="n">03</span>Dose &amp; distribute</div>
+          <div class="step"><span class="n">04</span>Tamp level, ergonomically</div>
+          <div class="step"><span class="n">05</span>Clean loose grounds from the rim</div>
+          <div class="step"><span class="n">06</span>Lock in &amp; start the pump at once</div>
+          <div class="step"><span class="n">07</span>Watch the flow, stop appropriately</div>
+          <div class="step"><span class="n">08</span>Serve, or build the drink</div>
+          <div class="step"><span class="n">09</span>Knock out the spent puck</div>
+          <div class="step"><span class="n">10</span>Wipe &amp; flush the group again</div>
+          <div class="step"><span class="n">11</span>Reseat the portafilter to stay warm</div>
+        </div>
+      </div>
+    </div>`);
+
+  // ---- Module 3: Espresso Equipment ----
+  slide(3, `
+    <div class="slide">
+      <div class="kicker"><span class="num">03</span><span class="sep">/</span><span>Espresso Equipment</span><span class="of">&middot; 1 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">The espresso machine.</h2>
+        <div class="grid2">
+          <div class="machine-diagram" style="position:relative; aspect-ratio:4/3; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;">
+            <img src="assets/img/img-030.jpg" alt="Two-group Astoria Calypso espresso machine, front view showing the group heads, portafilters, dosing keypad, pressure gauge, steam wands and drip tray" style="width:100%; height:100%; object-fit:cover; display:block;">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%;">
+              <line x1="52" y1="28" x2="36" y2="43" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="36" cy="43" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="18" y1="66" x2="32" y2="54" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="32" cy="54" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="16" y1="10" x2="29" y2="30" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="29" cy="30" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="65" y1="90" x2="46" y2="83" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="46" cy="83" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="6" y1="24" x2="2" y2="49" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="2" cy="49" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="70" y1="6" x2="44" y2="13" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="44" cy="13" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="75" y1="60" x2="48" y2="71" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="48" cy="71" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+            </svg>
+            <div class="mcallout" style="left:52%; top:28%;">1</div>
+            <div class="mcallout" style="left:18%; top:66%;">2</div>
+            <div class="mcallout" style="left:16%; top:10%;">3</div>
+            <div class="mcallout" style="left:65%; top:90%;">4</div>
+            <div class="mcallout" style="left:6%; top:24%;">5</div>
+            <div class="mcallout" style="left:70%; top:6%;">6</div>
+            <div class="mcallout" style="left:75%; top:60%;">6</div>
+          </div>
+          <ul class="list numbered">
+            <li><span class="pn">1</span><b>Group head</b> &mdash; where the portafilter locks in</li>
+            <li><span class="pn">2</span><b>Portafilter</b> &mdash; holds the coffee puck</li>
+            <li><span class="pn">3</span><b>Dosing keypad</b> &mdash; programs shot volume</li>
+            <li><span class="pn">4</span><b>Pressure gauge</b> &mdash; pump &amp; boiler readout</li>
+            <li><span class="pn">5</span><b>Steam wand</b> &mdash; textures milk</li>
+            <li><span class="pn">6</span><b>Drip tray &amp; cup warmer</b> round out the station</li>
+          </ul>
+        </div>
+      </div>
+    </div>`);
+
+  slide(3, `
+    <div class="slide">
+      <div class="kicker"><span class="num">03</span><span class="sep">/</span><span>Espresso Equipment</span><span class="of">&middot; 2 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">The grinder.</h2>
+        <div class="grid2">
+          <div class="machine-diagram" style="position:relative; aspect-ratio:4/3; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;">
+            <img src="assets/img/img-031.jpg" alt="A coffee grinder showing the bean hopper, adjustment dial, grind chamber and dosing chute and fork" style="width:100%; height:100%; object-fit:cover; display:block;">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%;">
+              <line x1="85" y1="15" x2="50" y2="26" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="50" cy="26" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="88" y1="72" x2="63" y2="72" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="63" cy="72" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="12" y1="50" x2="45" y2="50" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="45" cy="50" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="12" y1="88" x2="38" y2="81" stroke="#fff" stroke-width="0.6" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="38" cy="81" rx="0.6" ry="0.8" fill="#fff" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+            </svg>
+            <div class="mcallout" style="left:85%; top:15%;">1</div>
+            <div class="mcallout" style="left:88%; top:72%;">2</div>
+            <div class="mcallout" style="left:12%; top:50%;">3</div>
+            <div class="mcallout" style="left:12%; top:88%;">4</div>
+          </div>
+          <ul class="list numbered">
+            <li><span class="pn">1</span><b>Hopper</b> holds whole beans</li>
+            <li><span class="pn">2</span><b>Adjustment collar</b> sets grind size</li>
+            <li><span class="pn">3</span><b>Burrs</b> crush the beans &mdash; flat or conical</li>
+            <li><span class="pn">4</span><b>Chute &amp; fork</b> guide grounds into the portafilter</li>
+          </ul>
+        </div>
+      </div>
+    </div>`);
+
+  slide(3, `
+    <div class="slide">
+      <div class="kicker"><span class="num">03</span><span class="sep">/</span><span>Espresso Equipment</span><span class="of">&middot; 3 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.5rem;">Three ways to grind.</h2>
+        <div class="defect-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-032.jpg" alt="A doser grinder" style="object-fit:contain; padding:1.2rem;">
+            <div class="defect-scrim"><h3>Doser</h3><p>Grinds into a holding chamber, dosed out by lever.</p></div>
+          </div>
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-033.jpg" alt="An on-demand grinder" style="object-fit:contain; padding:1.2rem;">
+            <div class="defect-scrim"><h3>On-Demand</h3><p>Grinds straight to order, no waiting chamber.</p></div>
+          </div>
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-034.jpg" alt="A gravimetric grinder" style="object-fit:contain; padding:1.2rem;">
+            <div class="defect-scrim"><h3>Gravimetric</h3><p>Grinds to a precise weight, by scale.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(3, `
+    <div class="slide">
+      <div class="kicker"><span class="num">03</span><span class="sep">/</span><span>Espresso Equipment</span><span class="of">&middot; 4 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.2rem;">The barista's small tools.</h2>
+        <div class="defect-grid" style="grid-template-columns:repeat(5,1fr);">
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-035.jpg" alt="A wooden-handled espresso tamper" style="object-fit:contain; padding:1rem;">
+            <div class="defect-scrim"><h3>Tamper</h3><p>Presses the bed level.</p></div>
+          </div>
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-036.jpg" alt="A silicone tamper mat with cup rests" style="object-fit:contain; padding:1rem;">
+            <div class="defect-scrim"><h3>Tamper Mat</h3><p>Protects the counter &amp; tamper.</p></div>
+          </div>
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-037.jpg" alt="A knock box for spent coffee pucks" style="object-fit:contain; padding:1rem;">
+            <div class="defect-scrim"><h3>Knock Box</h3><p>Takes the spent puck.</p></div>
+          </div>
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-038.jpg" alt="A digital coffee scale" style="object-fit:contain; padding:1rem;">
+            <div class="defect-scrim"><h3>Weighing Scale</h3><p>Dose &amp; yield, precisely.</p></div>
+          </div>
+          <div class="defect-tile" style="background:var(--paper);">
+            <img src="assets/img/img-039.jpg" alt="Stainless steel milk pitchers of different sizes" style="object-fit:contain; padding:1rem;">
+            <div class="defect-scrim"><h3>Milk Pitcher</h3><p>Steams &amp; pours with control.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(3, `
+    <div class="slide">
+      <div class="kicker"><span class="num">03</span><span class="sep">/</span><span>Espresso Equipment</span><span class="of">&middot; 5 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.8rem;">Boiler pressure, at a glance.</h2>
+        <div class="grid2" style="align-items:center;">
+          <div class="machine-diagram" style="position:relative; aspect-ratio:4/3; border-radius:var(--radius); box-shadow:var(--shadow); background:var(--panel); overflow:hidden;">
+            <img src="assets/img/img-040.png" alt="A dual-scale pressure gauge showing the water pump reading on the outer scale and the steam boiler reading on the inner scale" style="width:100%; height:100%; object-fit:contain; display:block;">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%;">
+              <line x1="8" y1="95" x2="33.6" y2="69.5" stroke="var(--accent)" stroke-width="0.35" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="33.6" cy="69.5" rx="0.6" ry="0.8" fill="var(--accent)" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+              <line x1="90" y1="5" x2="47.9" y2="35.8" stroke="var(--accent)" stroke-width="0.35" stroke-dasharray="1.2,1.2"></line>
+              <ellipse cx="47.9" cy="35.8" rx="0.6" ry="0.8" fill="var(--accent)" stroke="var(--paper)" stroke-width="0.2"></ellipse>
+            </svg>
+            <div class="mcallout" style="left:8%; top:95%;">1</div>
+            <div class="mcallout" style="left:90%; top:5%;">2</div>
+          </div>
+          <ul class="list numbered">
+            <li><span class="pn">1</span><b>Water pump</b> should read 7&ndash;11 bar</li>
+            <li><span class="pn">2</span><b>Steam boiler</b> should read 1&ndash;1.5 bar</li>
+          </ul>
+        </div>
+      </div>
+    </div>`);
+
+  // ---- Module 4: Grinder Adjustment ----
+  slide(4, `
+    <div class="slide">
+      <div class="kicker"><span class="num">04</span><span class="sep">/</span><span>Grinder Adjustment</span><span class="of">&middot; 1 of 3</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">Fine turns bitter, coarse turns sour.</h2>
+        <p class="lede" style="margin-bottom:.7rem;">Dial in one variable at a time &mdash; grind size first. Purge a shot after every adjustment before you judge it, then taste and move again in small steps.</p>
+        <p style="font-size:.88rem; color:var(--ink-soft); max-width:38rem; margin:0 0 1.4rem;">Expect to re-adjust through the day: humidity shifts the moisture in the beans, burrs heat up under continuous use, and the bag is a little less fresh every hour it stays open.</p>
+        <div class="dial-wrap">
+          <div class="knob"><div class="pointer"></div></div>
+          <div style="flex:1;">
+            <img src="assets/img/img-041.png" alt="Seven coffee grind sizes from coarse to fine, ranging from chunky flakes to fine powder" style="width:100%; border-radius:14px; box-shadow:var(--shadow); background:var(--panel); display:block;">
+            <div style="display:flex; justify-content:space-between; margin-top:.6rem; font-family:'IBM Plex Mono'; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);">
+              <span>Coarse</span><span>Medium</span><span>Fine</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(4, `
+    <div class="slide">
+      <div class="kicker"><span class="num">04</span><span class="sep">/</span><span>Grinder Adjustment</span><span class="of">&middot; 2 of 3</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.4rem;">Dosing &amp; distribution.</h2>
+        <div class="grid2">
+          <ul class="list">
+            <li>Weigh the dose &mdash; <b>7&ndash;10g single, 14&ndash;20g double</b>.</li>
+            <li>Distribute grounds evenly across the basket before tamping.</li>
+            <li>An uneven bed is the most common cause of a messy shot.</li>
+          </ul>
+          <div class="card">
+            <span class="eyebrow">Why distribution matters</span>
+            <p style="font-size:.9rem; color:var(--ink-soft); line-height:1.5;">Water always finds the path of least resistance. A lumpy or lopsided bed lets it rush through the thin spots &mdash; under-extracting part of the puck while over-extracting the rest.</p>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(4, `
+    <div class="slide">
+      <div class="kicker"><span class="num">04</span><span class="sep">/</span><span>Grinder Adjustment</span><span class="of">&middot; 3 of 3</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">Tamping: level, and dead level.</h2>
+        <div class="tamp-row">
+          <div class="tamp-card fast">
+            <div class="basket"><div class="bed bed-channel"></div></div>
+            <div class="drip"><i></i><i></i><i></i></div>
+            <h3 style="font-size:.95rem;">Channeling</h3>
+            <p style="font-size:.8rem; color:var(--ink-soft);">Water blasts through a crack &mdash; fast, thin, sour shot.</p>
+          </div>
+          <div class="tamp-card">
+            <div class="basket"><div class="bed bed-even"></div></div>
+            <div class="drip"><i></i><i></i><i></i></div>
+            <h3 style="font-size:.95rem;">Even &amp; Level</h3>
+            <p style="font-size:.8rem; color:var(--ink-soft);">Consistent resistance, consistent extraction.</p>
+          </div>
+          <div class="tamp-card slow">
+            <div class="basket"><div class="bed bed-uneven"></div></div>
+            <div class="drip"><i></i><i></i><i></i></div>
+            <h3 style="font-size:.95rem;">Uneven Tamp</h3>
+            <p style="font-size:.8rem; color:var(--ink-soft);">One side over-extracts while the other lags behind.</p>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  // ---- Module 5: Milk Techniques ----
+  slide(5, `
+    <div class="slide">
+      <div class="kicker"><span class="num">05</span><span class="sep">/</span><span>Milk Techniques</span><span class="of">&middot; 1 of 4</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">Steam within range &mdash; every time.</h2>
+        <div class="therm-row">
+          <div class="therm"><div class="tube"><div class="fill" style="height:60%;"></div></div><div class="bulb"></div><div class="label">In the cup<b>55&ndash;65&deg;C</b></div></div>
+          <div class="therm"><div class="tube"><div class="fill" style="height:74%;"></div></div><div class="bulb"></div><div class="label">Max in pitcher<b>70&deg;C</b></div></div>
+          <p style="max-width:20rem; font-size:.88rem; color:var(--ink-soft); align-self:center;">Beyond 70&deg;C, milk proteins scald &mdash; the sweetness collapses into a flat, cooked taste no latte art can rescue.</p>
+        </div>
+      </div>
+    </div>`);
+
+  slide(5, `
+    <div class="slide">
+      <div class="kicker"><span class="num">05</span><span class="sep">/</span><span>Milk Techniques</span><span class="of">&middot; 2 of 4</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">Foam vs. microfoam.</h2>
+        <div class="milk-wrap">
+          <img class="photo-frame" style="width:200px; aspect-ratio:3/4; flex-shrink:0;" src="assets/img/img-042.jpg" alt="Barista pouring steamed milk with microfoam">
+          <ul class="list">
+            <li><b>Foam</b> &mdash; large, dry bubbles; sits on top, doesn't integrate.</li>
+            <li><b>Microfoam</b> &mdash; fine, glossy, paint-like texture that folds into the espresso.</li>
+            <li>Introduce air early, then spin the milk into a tight vortex to break bubbles down.</li>
+          </ul>
+        </div>
+      </div>
+    </div>`);
+
+  slide(5, `
+    <div class="slide">
+      <div class="kicker"><span class="num">05</span><span class="sep">/</span><span>Milk Techniques</span><span class="of">&middot; 3 of 4</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">When steaming goes wrong.</h2>
+        <div class="grid4">
+          <div class="card"><span class="eyebrow">01</span><h3 style="font-size:.95rem;">Spoiled Milk</h3><p style="font-size:.78rem; color:var(--ink-soft); margin-top:.35rem;">Past date or left out of the fridge &mdash; it will not hold foam and it tastes off.</p></div>
+          <div class="card"><span class="eyebrow">02</span><h3 style="font-size:.95rem;">Already Foamed</h3><p style="font-size:.78rem; color:var(--ink-soft); margin-top:.35rem;">Milk textured once and re-steamed; the proteins will not take air a second time.</p></div>
+          <div class="card"><span class="eyebrow">03</span><h3 style="font-size:.95rem;">Poor Technique</h3><p style="font-size:.78rem; color:var(--ink-soft); margin-top:.35rem;">Wand too deep or too shallow, air added too late &mdash; big dry bubbles, no vortex.</p></div>
+          <div class="card"><span class="eyebrow">04</span><h3 style="font-size:.95rem;">Equipment Failure</h3><p style="font-size:.78rem; color:var(--ink-soft); margin-top:.35rem;">Blocked or crusted steam tip, or weak boiler pressure; the milk never spins.</p></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(5, `
+    <div class="slide">
+      <div class="kicker"><span class="num">05</span><span class="sep">/</span><span>Milk Techniques</span><span class="of">&middot; 4 of 4</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">Pouring your first heart.</h2>
+        <p class="lede" style="margin-bottom:1.2rem;">Latte art is a Foundation skill, not an advanced one &mdash; it begins the moment your milk is properly textured.</p>
+        <div class="grid2" style="align-items:center;">
+          <img class="photo-frame" style="aspect-ratio:1/1;" src="assets/img/img-043.jpg" alt="A well-poured latte art pattern in a cup, showing crisp white contrast against the crema">
+          <div>
+            <div class="card" style="margin-bottom:.9rem;"><span class="eyebrow">01 &middot; Sink the milk</span><h3>Pour from height</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Start high, into the centre of the cup, so the milk drops under the crema instead of sitting on top of it.</p></div>
+            <div class="card" style="margin-bottom:.9rem;"><span class="eyebrow">02 &middot; Bring it close</span><h3>Drop the pitcher</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">As the cup fills, lower the spout right down to the surface &mdash; that is when the white pattern starts to show.</p></div>
+            <div class="card"><span class="eyebrow">03 &middot; Shape it</span><h3>Wiggle, then pull through</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Wiggle side to side, then pull the pitcher back through the crema to close a basic heart or rosetta.</p></div>
+          </div>
+        </div>
+        <p style="margin-top:1rem; font-size:.86rem; color:var(--ink-faint);">Fundamentals only at this level &mdash; a clean heart on well-textured milk beats a rushed rosetta every time.</p>
+      </div>
+    </div>`);
+
+  // ---- Module 6: Basic Drinks Preparation ----
+  slide(6, `
+    <div class="slide">
+      <div class="kicker"><span class="num">06</span><span class="sep">/</span><span>Basic Drinks Preparation</span><span class="of">&middot; 1 of 2</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.8rem;">Four drinks, one shot of espresso.</h2>
+        <div class="drink-row">
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="100"></div></div><div class="name">Espresso</div><div class="ratio mono">just the shot</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="35"></div><div class="layer l-water" style="height:0%;" data-h="90"></div></div><div class="name">Americano</div><div class="ratio mono">espresso + hot water</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="30"></div><div class="layer l-milk" style="height:0%;" data-h="80"></div><div class="layer l-foam" style="height:0%;" data-h="95"></div></div><div class="name">Cappuccino</div><div class="ratio mono">equal milk &amp; foam</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="25"></div><div class="layer l-milk" style="height:0%;" data-h="92"></div><div class="layer l-foam" style="height:0%;" data-h="100"></div></div><div class="name">Latte</div><div class="ratio mono">more milk, thin foam</div></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(6, `
+    <div class="slide">
+      <div class="kicker"><span class="num">06</span><span class="sep">/</span><span>Basic Drinks Preparation</span><span class="of">&middot; 2 of 2</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">The rest of the menu, layer by layer.</h2>
+        <p class="lede" style="margin-bottom:1.1rem;">Same espresso base every time &mdash; what changes is what sits on top of it, and how much.</p>
+        <div class="drink-row">
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="100"></div></div><div class="name">Doppio</div><div class="ratio mono">double shot</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="90"></div><div class="layer l-foam" style="height:0%;" data-h="100"></div></div><div class="name">Macchiato</div><div class="ratio mono">espresso + foam dollop</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="30"></div><div class="layer l-milk" style="height:0%;" data-h="100"></div></div><div class="name">Cortado</div><div class="ratio mono">espresso + steamed milk</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="15"></div><div class="layer l-milk" style="height:0%;" data-h="100"></div></div><div class="name">Flat White</div><div class="ratio mono">more milk, same layers</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="25"></div><div class="layer l-chocolate" style="height:0%;" data-h="45"></div><div class="layer l-milk" style="height:0%;" data-h="85"></div><div class="layer l-foam" style="height:0%;" data-h="100"></div></div><div class="name">Mocha</div><div class="ratio mono">+ chocolate</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="75"></div><div class="layer l-cream" style="height:0%;" data-h="100"></div></div><div class="name">Con Panna</div><div class="ratio mono">espresso + cream</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-icecream" style="height:0%;" data-h="55"></div><div class="layer l-espresso" style="height:0%;" data-h="100"></div></div><div class="name">Affogato</div><div class="ratio mono">poured over ice cream</div></div>
+          <div class="drink"><div class="glass"><div class="layer l-espresso" style="height:0%;" data-h="40"></div><div class="layer l-whiskey" style="height:0%;" data-h="70"></div><div class="layer l-cream" style="height:0%;" data-h="100"></div></div><div class="name">Irish Coffee</div><div class="ratio mono">+ whiskey + cream</div></div>
+        </div>
+        <p style="margin-top:1.2rem; font-size:.86rem; color:var(--ink-faint);">Cortado and flat white share the same two layers &mdash; the difference is cup size and milk volume, not composition.</p>
+      </div>
+    </div>`);
+
+  // ---- Module 7: Hygiene and Safety ----
+  slide(7, `
+    <div class="slide">
+      <div class="kicker"><span class="num">07</span><span class="sep">/</span><span>Hygiene &amp; Safety</span><span class="of">&middot; 1 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.6rem;">You are the standard you serve.</h2>
+        <img class="tools-hero" style="height:220px;" src="assets/img/img-044.jpg" alt="Baristas in black attire working at an espresso machine">
+        <div class="groom-row">
+          <div class="groom-card"><div class="groom-icon">&#128100;</div><h3 style="font-size:.9rem;">Attire</h3><p style="font-size:.78rem; color:var(--ink-soft);">Black shirt, covered shoes.</p></div>
+          <div class="groom-card"><div class="groom-icon">&#9986;&#65039;</div><h3 style="font-size:.9rem;">Nails</h3><p style="font-size:.78rem; color:var(--ink-soft);">Trimmed, always.</p></div>
+          <div class="groom-card"><div class="groom-icon">&#9986;</div><h3 style="font-size:.9rem;">Hair</h3><p style="font-size:.78rem; color:var(--ink-soft);">Neat; tied back if long.</p></div>
+          <div class="groom-card"><div class="groom-icon">&#128167;</div><h3 style="font-size:.9rem;">Deodorant</h3><p style="font-size:.78rem; color:var(--ink-soft);">Non-negotiable behind a counter.</p></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(7, `
+    <div class="slide">
+      <div class="kicker"><span class="num">07</span><span class="sep">/</span><span>Hygiene &amp; Safety</span><span class="of">&middot; 2 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">Wet station, dry station.</h2>
+        <p class="lede" style="margin-bottom:1.3rem;">Split the bar in two and keep them that way &mdash; water and grounds don't mix.</p>
+        <div class="grid2">
+          <div>
+            <img class="photo-frame" style="aspect-ratio:4/3;" src="assets/img/img-030.jpg" alt="The espresso machine and steam wand area of a cafe counter">
+            <p style="text-align:center; margin-top:.6rem; font-weight:600;">Wet Station</p>
+            <p style="text-align:center; font-size:.82rem; color:var(--ink-soft);">Machine, steam wand, water, cups &amp; rinsing &mdash; anything that gets splashed.</p>
+          </div>
+          <div>
+            <img class="photo-frame" style="aspect-ratio:4/3;" src="assets/img/img-032.jpg" alt="A coffee grinder with dry beans">
+            <p style="text-align:center; margin-top:.6rem; font-weight:600;">Dry Station</p>
+            <p style="text-align:center; font-size:.82rem; color:var(--ink-soft);">Grinder, dosing, packaging &amp; dry goods &mdash; kept away from moisture.</p>
+          </div>
+        </div>
+        <p style="margin-top:1.2rem; font-size:.86rem; color:var(--ink-faint);">Cross-contaminate the two and you get soggy grounds, clumped beans, and a wet floor under the grinder.</p>
+      </div>
+    </div>`);
+
+  slide(7, `
+    <div class="slide">
+      <div class="kicker"><span class="num">07</span><span class="sep">/</span><span>Hygiene &amp; Safety</span><span class="of">&middot; 3 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:1.4rem;">A place for everything on the bar.</h2>
+        <img class="tools-hero" style="height:220px;" src="assets/img/img-045.jpg" alt="An organized barista counter with cups, drip tray and tools each in their place">
+        <div class="bar-top">
+          <div class="zone z1">Cups &amp; saucers</div>
+          <div class="zone z2">Tamp &amp; grinder</div>
+          <div class="zone z3">Steam wand cloth</div>
+          <div class="zone z4">Chemicals</div>
+          <div class="zone z5">Clean spills as you go</div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(7, `
+    <div class="slide">
+      <div class="kicker"><span class="num">07</span><span class="sep">/</span><span>Hygiene &amp; Safety</span><span class="of">&middot; 4 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">Clean the machine, every single day.</h2>
+        <p class="lede">A dirty group head and a crusted steam wand spoil more cups than a bad grind ever will.</p>
+        <div class="grid3">
+          <div class="card"><span class="eyebrow">Daily</span><h3>Backflush the group</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Blind basket plus cleaning detergent at close, then rinse cycles until the water runs clear.</p></div>
+          <div class="card"><span class="eyebrow">Regularly</span><h3>Gasket &amp; shower screen</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Take the screen off and clean it; check the group gasket for packed grounds and wear.</p></div>
+          <div class="card"><span class="eyebrow">Regularly</span><h3>Grinder burrs</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Old grounds go stale in the burr chamber and taint every dose that follows them.</p></div>
+          <div class="card"><span class="eyebrow">Every use</span><h3>Steam wand</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Purge a short burst before, wipe it clean immediately after &mdash; every single time.</p></div>
+          <div class="card"><span class="eyebrow">Storage</span><h3>Milk at 5&deg;C or below</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">Keep it refrigerated and covered, and put it straight back the moment you are done.</p></div>
+          <div class="card"><span class="eyebrow">Always</span><h3>Cloths kept apart</h3><p style="font-size:.84rem; color:var(--ink-soft); line-height:1.5;">One cloth for the steam wand, another for the counter &mdash; never the same one.</p></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide(7, `
+    <div class="slide">
+      <div class="kicker"><span class="num">07</span><span class="sep">/</span><span>Hygiene &amp; Safety</span><span class="of">&middot; 5 of 5</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">The bar is hot, wet and full of chemicals.</h2>
+        <p class="lede">Four hazards sit behind every counter. Know them before they find you.</p>
+        <img class="tools-hero" style="height:220px;" src="assets/img/img-046.jpg" alt="A caution wet floor sign on tiles">
+        <div class="defect-grid">
+          <div class="defect-tile"><img src="assets/img/img-047.jpg" alt="A barista steaming milk with the steam wand of an espresso machine"><div class="defect-scrim"><h3>Burns &amp; Scalds</h3><p>Steam wand, group head and hot water tap all burn on contact. Purge away from your hand.</p></div></div>
+          <div class="defect-tile"><img src="assets/img/img-048.jpg" alt="A mop and bucket used to clean a spill"><div class="defect-scrim"><h3>Wet Floors</h3><p>Spilled milk or water is a slip hazard &mdash; wipe it up the moment it lands.</p></div></div>
+          <div class="defect-tile"><img src="assets/img/img-049.jpg" alt="Assorted cleaning chemical bottles and a cloth on a counter"><div class="defect-scrim"><h3>Chemicals</h3><p>Dilute exactly as the label says, never mix two products, keep them away from cups and milk.</p></div></div>
+          <div class="defect-tile"><img src="assets/img/img-050.jpg" alt="A hand holding an unplugged power plug in front of an appliance"><div class="defect-scrim"><h3>Power Off First</h3><p>Unplug or isolate any machine before deep-cleaning or maintenance work.</p></div></div>
+        </div>
+      </div>
+    </div>`);
+
+  // ---- Module 8: Customer Service ----
+  slide(8, `
+    <div class="slide">
+      <div class="kicker"><span class="num">08</span><span class="sep">/</span><span>Customer Service</span><span class="of">&middot; 1 of 1</span></div>
+      <div class="content wide">
+        <h2 class="title" style="margin-bottom:.6rem;">The barista is the face of the business.</h2>
+        <p class="lede">Welcoming, smiling, and confident enough to suggest an add-on &mdash; while genuinely knowing the menu and the person in front of you.</p>
+        <div class="loop">
+          <div class="loop-step"><div class="loop-circle">1</div><b>Connect</b></div>
+          <div class="loop-step"><div class="loop-circle">2</div><b>Discover</b></div>
+          <div class="loop-step"><div class="loop-circle">3</div><b>Respond</b></div>
+        </div>
+        <div class="grid2" style="margin-top:1.8rem;">
+          <div class="card"><span class="eyebrow">Cost per cup</span><p style="font-size:.88rem; color:var(--ink-soft); line-height:1.5;">Dose to the recipe every time. A gram over on every shot is money poured away &mdash; and the cup stops tasting the same twice.</p></div>
+          <div class="card"><span class="eyebrow">Stock rotation</span><p style="font-size:.88rem; color:var(--ink-soft); line-height:1.5;">FIFO &mdash; first in, first out. Older beans and milk go to the front and get used first, so nothing is lost at the back of the shelf.</p></div>
+        </div>
+      </div>
+    </div>`);
+
+  slide('end', `
+    <div class="slide end">
+      <div class="content">
+        <div class="cover-mark">Foundation &middot; Complete</div>
+        <h2 class="title" style="font-size:clamp(1.8rem,3.4vw,2.6rem);">Eight modules down. One badge earned.</h2>
+        <p class="lede" style="margin:0 auto;">You leave Foundation able to pull a shot, texture milk and pour a basic heart. From here, the path continues into <b>Intermediate</b> &mdash; deeper extraction science, sensory skill and more advanced milk work.</p>
+      </div>
+    </div>`);
+
+  // ---------------- render ----------------
+  var stage = document.getElementById('stage');
+  var railEl = document.getElementById('rail');
+  var moduleNames = {1:'Introduction to Coffee',2:'Espresso Fundamentals',3:'Espresso Equipment',4:'Grinder Adjustment',5:'Milk Techniques',6:'Basic Drinks Preparation',7:'Hygiene & Safety',8:'Customer Service'};
+
+  S.forEach(function(s, i){
+    var wrap = document.createElement('div');
+    wrap.innerHTML = s.html.trim();
+    var el = wrap.firstChild;
+    el.dataset.mod = s.mod;
+    el.dataset.index = i;
+    stage.appendChild(el);
+  });
+
+  // rail buttons: start, 1-8, end
+  var railTargets = [];
+  function addRail(label, mod, isEndpoint){
+    var b = document.createElement('button');
+    b.className = 'rail-btn' + (isEndpoint ? ' is-endpoint' : '');
+    b.innerHTML = label;
+    b.title = isEndpoint ? '' : moduleNames[mod];
+    b.setAttribute('aria-label', isEndpoint ? (mod === 'start' ? 'Go to introduction' : 'Go to closing') : ('Go to Module ' + mod + ': ' + moduleNames[mod]));
+    b.addEventListener('click', function(){
+      var idx = S.findIndex(function(s){ return s.mod === mod; });
+      goTo(idx);
+    });
+    railEl.appendChild(b);
+    railTargets.push({el:b, mod:mod});
+  }
+  addRail('&#9679;', 'start', true); railTargets[0].el.innerHTML = '&#9673;';
+  for(var m=1;m<=8;m++){ addRail(('0'+m), m, false); }
+  addRail('&#10003;', 'end', true);
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var current = 0;
+  var progressbar = document.getElementById('progressbar');
+  var slidepos = document.getElementById('slidepos');
+  var modulename = document.getElementById('modulename');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  function animateGlass(el){
+    el.querySelectorAll('.layer').forEach(function(layer, i){
+      setTimeout(function(){ layer.style.height = layer.dataset.h + '%'; }, 120 + i*260);
+    });
+  }
+  function animateTexture(el){
+    var cfgs = [{id:'tex1', n:8, min:6, max:10}, {id:'tex2', n:20, min:3, max:5}, {id:'tex3', n:46, min:1.4, max:2.4}];
+    cfgs.forEach(function(c){
+      var col = el.querySelector('#'+c.id);
+      if(!col || col.dataset.built) return;
+      col.dataset.built = '1';
+      for(var i=0;i<c.n;i++){
+        var d = document.createElement('i');
+        var size = c.min + Math.random()*(c.max-c.min);
+        d.style.width = size+'px'; d.style.height = size+'px';
+        col.appendChild(d);
+      }
+    });
+  }
+
+  function render(){
+    slides.forEach(function(el, i){
+      el.classList.toggle('is-active', i === current);
+    });
+    var s = slides[current];
+    var mod = s.dataset.mod;
+    modulename.textContent = (mod !== 'start' && mod !== 'end') ? ('Module ' + mod + ' — ' + moduleNames[mod]) : (mod === 'start' ? 'Introduction' : 'Closing');
+    slidepos.textContent = (current+1) + ' / ' + slides.length;
+    progressbar.style.width = (((current+1)/slides.length)*100) + '%';
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+    railTargets.forEach(function(t){ t.el.classList.toggle('is-current', String(t.mod) === String(mod)); });
+
+    if(s.querySelector && s.querySelector('.drink-row')) animateGlass(s);
+    if(s.querySelector && s.querySelector('.texture-row')){ animateTexture(s); }
+  }
+
+  function goTo(i){
+    current = Math.max(0, Math.min(slides.length-1, i));
+    render();
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(current-1); });
+  nextBtn.addEventListener('click', function(){ goTo(current+1); });
+
+  var wheelLocked = false;
+  document.addEventListener('wheel', function(e){
+    if(wheelLocked) return;
+    if(Math.abs(e.deltaY) < 12) return;
+    wheelLocked = true;
+    goTo(current + (e.deltaY > 0 ? 1 : -1));
+    setTimeout(function(){ wheelLocked = false; }, 600);
+  }, { passive:true });
+  var touchStartX = 0, touchStartY = 0, touchActive = false;
+  document.addEventListener('touchstart', function(e){
+    if(document.body.classList.contains('edit-mode')) return;
+    var modal = document.getElementById('videoModal');
+    if(modal && modal.classList.contains('is-open')) return;
+    if(e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchActive = true;
+  }, { passive:true });
+  document.addEventListener('touchend', function(e){
+    if(!touchActive) return;
+    touchActive = false;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+    if(Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    goTo(current + (dx < 0 ? 1 : -1));
+  }, { passive:true });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === ' '){ goTo(current+1); e.preventDefault(); }
+    else if(e.key === 'ArrowLeft'){ goTo(current-1); }
+    else if(e.key === 'Home'){ goTo(0); }
+    else if(e.key === 'End'){ goTo(slides.length-1); }
+  });
+
+  render();
+})();
+
+(function(){
+  document.querySelectorAll('.sob-gallery').forEach(function(gallery){
+    var slides = gallery.querySelectorAll('.sob-slide');
+    if(slides.length < 2) return;
+    var idx = 0;
+    setInterval(function(){
+      var current = slides[idx];
+      var nextIdx = (idx + 1) % slides.length;
+      var next = slides[nextIdx];
+      current.classList.remove('is-active');
+      current.classList.add('is-leaving');
+      next.classList.add('is-active');
+      setTimeout(function(){ current.classList.remove('is-leaving'); }, 650);
+      idx = nextIdx;
+    }, 3200);
+  });
+})();
+
+(function(){
+  var fullUrls = {
+    dry: 'https://claude.ai/code/artifact/7e20ae61-402e-4ebf-b593-4a812036fe42',
+    wet: 'https://claude.ai/code/artifact/2b739f1e-e48b-49f4-a272-f70c260f6fe3',
+    honey: 'https://claude.ai/code/artifact/b1636f54-c613-4001-a4ae-5d2b1de56d0f'
+  };
+  var clipUrls = {
+    dry: 'assets/video/video-003.mp4',
+    wet: 'assets/video/video-004.mp4',
+    honey: 'assets/video/video-005.mp4'
+  };
+  var modal = document.getElementById('videoModal');
+  var player = document.getElementById('videoModalPlayer');
+  var closeBtn = document.getElementById('videoModalClose');
+  var fullLink = document.getElementById('videoModalFull');
+  var caption = document.getElementById('videoModalCaption');
+  var clipLabels = { dry:'Dry (Natural) process', wet:'Wet (Washed) process', honey:'Honey process' };
+  function openVideo(key, title){
+    var src = clipUrls[key];
+    if(!src) return;
+    player.src = src;
+    fullLink.href = fullUrls[key] || '#';
+    if(caption){
+      var label = clipLabels[key] || (title || '').trim();
+      caption.textContent = label ? (label + ' \u00b7 8\u00d7 speed, no audio') : '8\u00d7 speed, no audio';
+    }
+    modal.classList.add('is-open');
+    player.currentTime = 0;
+    player.play().catch(function(){});
+  }
+  function closeVideo(){
+    modal.classList.remove('is-open');
+    player.pause();
+    player.removeAttribute('src');
+    player.load();
+  }
+  document.querySelectorAll('.process-card[data-video]').forEach(function(card){
+    card.addEventListener('click', function(){
+      if(document.body.classList.contains('edit-mode')) return;
+      var h = card.querySelector('h3');
+      openVideo(card.dataset.video, h ? h.textContent : '');
+    });
+  });
+  player.addEventListener('ended', closeVideo);
+  closeBtn.addEventListener('click', closeVideo);
+  modal.addEventListener('click', function(e){ if(e.target === modal) closeVideo(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal.classList.contains('is-open')) closeVideo(); });
+})();
+
+(async function(){
+  if(typeof claude === 'undefined') return;
+  var db = null;
+  try { db = await claude.use('db'); } catch(e){ db = null; }
+  if(!db) return;
+
+  var editsCol = db.collection('edits');
+  var overrides = {};
+
+  function applyOverride(key, data){
+    var el = document.querySelector('[data-editkey="'+key+'"]');
+    if(!el) return;
+    el.style.setProperty('--edx', (data.dx||0)+'px');
+    el.style.setProperty('--edy', (data.dy||0)+'px');
+    el.style.setProperty('--esc', data.scale||1);
+    if(data.fs != null){
+      el.style.setProperty('font-size', data.fs+'px', 'important');
+      Array.prototype.forEach.call(el.querySelectorAll('*'), function(c){
+        c.style.setProperty('font-size', 'inherit', 'important');
+      });
+    } else {
+      el.style.removeProperty('font-size');
+      Array.prototype.forEach.call(el.querySelectorAll('*'), function(c){
+        c.style.removeProperty('font-size');
+      });
+    }
+    el.style.width = (data.w != null) ? (data.w+'px') : '';
+    el.style.height = (data.h != null) ? (data.h+'px') : '';
+  }
+
+  var editBtn = document.createElement('button');
+  editBtn.className = 'nav-btn';
+  editBtn.id = 'editToggleBtn';
+  editBtn.title = 'Edit mode';
+  editBtn.setAttribute('aria-label', 'Toggle edit mode');
+  editBtn.innerHTML = '&#9998;';
+  var controlsSide = document.querySelector('#controls .side');
+  if(controlsSide) controlsSide.appendChild(editBtn);
+
+  var NO_RECURSE = ['chart-wrap','drink-row','texture-row','machine','compare-wrap','compare-track','grinder','knob','layer','steam','espresso-numbers-photo','orbit-step','stage-card','card','agenda-item','ar-ro-side','defect-tile','process-card','cup-card','type-card','tamp-card','groom-card','roast-flow-step','loop-step','step','varietree-leaf','node','therm','gauge','path-step','sob-gallery','water-cup-photo','machine-diagram'];
+  var TRANSPARENT = ['grid2','grid3','grid4','agenda-grid','ar-ro-layout','species-row','cup-row','therm-row','gauge-row','groom-row','tamp-row','type-row','process-row','defect-grid','stepper','path-row','roast-flow','loop'];
+  function hashStr(s){
+    var h = 5381;
+    for(var i=0;i<s.length;i++){ h = ((h*33) ^ s.charCodeAt(i)) >>> 0; }
+    return h.toString(36);
+  }
+  function fingerprint(el){
+    var cls = (typeof el.className === 'string' && el.className) ? el.className.trim().split(/\s+/)[0] : el.tagName.toLowerCase();
+    var text = (el.textContent || '').trim().replace(/\s+/g,' ').slice(0,60);
+    var img = (el.tagName === 'IMG') ? el : el.querySelector('img');
+    var imgKey = img ? (img.getAttribute('alt') || img.getAttribute('src') || '') : '';
+    return cls + '|' + text + '|' + imgKey;
+  }
+  try {
+    Array.prototype.forEach.call(document.querySelectorAll('#stage .slide'), function(slideEl, si){
+      var fpCounts = {};
+      function tagOnce(el){
+        if(el.dataset.editkey) return;
+        var fp = fingerprint(el);
+        var n = (fpCounts[fp] = (fpCounts[fp]||0) + 1);
+        el.dataset.editkey = 's' + si + '-k' + hashStr(fp) + (n > 1 ? ('-' + n) : '');
+      }
+      function skipRecurse(el){
+        for(var i=0;i<NO_RECURSE.length;i++){ if(el.classList.contains(NO_RECURSE[i])) return true; }
+        return false;
+      }
+      function isTransparent(el){
+        for(var i=0;i<TRANSPARENT.length;i++){ if(el.classList.contains(TRANSPARENT[i])) return true; }
+        return false;
+      }
+      function tagChildren(el, depth){
+        if(depth <= 0) return;
+        Array.prototype.forEach.call(el.children, function(child){
+          if(child.tagName === 'LI') return;
+          var transparent = isTransparent(child);
+          if(!transparent) tagOnce(child);
+          if(!skipRecurse(child)) tagChildren(child, transparent ? depth : depth-1);
+        });
+      }
+      slideEl.querySelectorAll('.kicker').forEach(tagOnce);
+      slideEl.querySelectorAll('.content').forEach(function(contentEl){
+        tagChildren(contentEl, 3);
+      });
+    });
+  } catch(e){ console.error('edit-mode tagging failed', e); }
+
+  try {
+    var snap = await editsCol.get();
+    snap.docs.forEach(function(d){
+      var data = d.data();
+      overrides[d.id] = data;
+      applyOverride(d.id, data);
+    });
+  } catch(e){ console.error('edit-mode load failed', e); }
+
+  var panel = document.getElementById('editPanel');
+  var epKey = document.getElementById('epKey');
+  var editModeOn = false;
+  var selectedKeys = [];
+
+  function isSelected(key){ return selectedKeys.indexOf(key) !== -1; }
+
+  function setSelection(keys){
+    selectedKeys.forEach(function(k){
+      var el = document.querySelector('[data-editkey="'+k+'"]');
+      if(el) el.classList.remove('is-edit-selected');
+    });
+    selectedKeys = keys.slice();
+    selectedKeys.forEach(function(k){
+      var el = document.querySelector('[data-editkey="'+k+'"]');
+      if(el) el.classList.add('is-edit-selected');
+    });
+    epKey.textContent = selectedKeys.length === 0 ? '' :
+      (selectedKeys.length === 1 ? selectedKeys[0] : (selectedKeys.length + ' items selected'));
+    panel.classList.toggle('is-open', selectedKeys.length > 0);
+  }
+
+  function deselect(){ setSelection([]); }
+
+  function setEditMode(on){
+    editModeOn = on;
+    document.body.classList.toggle('edit-mode', on);
+    editBtn.classList.toggle('is-current', on);
+    if(!on) deselect();
+  }
+
+  editBtn.addEventListener('click', function(){ setEditMode(!editModeOn); });
+
+  var saveTimers = {};
+  function scheduleSave(key, data){
+    clearTimeout(saveTimers[key]);
+    saveTimers[key] = setTimeout(function(){
+      editsCol.doc(key).set(data).catch(function(){});
+    }, 400);
+  }
+  function dataFor(key){
+    var d = overrides[key] || {};
+    return {dx:d.dx||0, dy:d.dy||0, scale:d.scale||1, fs:(d.fs!=null?d.fs:null), w:(d.w!=null?d.w:null), h:(d.h!=null?d.h:null)};
+  }
+  function setDataFor(key, d){
+    overrides[key] = d;
+    applyOverride(key, d);
+  }
+  function nudge(dx, dy){
+    selectedKeys.forEach(function(key){
+      var d = dataFor(key);
+      d = {dx:d.dx+dx, dy:d.dy+dy, scale:d.scale, fs:d.fs, w:d.w, h:d.h};
+      setDataFor(key, d);
+      scheduleSave(key, d);
+    });
+  }
+  function rescale(delta){
+    selectedKeys.forEach(function(key){
+      var d = dataFor(key);
+      d = {dx:d.dx, dy:d.dy, scale:Math.max(.4, Math.min(2.5, d.scale+delta)), fs:d.fs, w:d.w, h:d.h};
+      setDataFor(key, d);
+      scheduleSave(key, d);
+    });
+  }
+  function fontStep(delta){
+    selectedKeys.forEach(function(key){
+      var el = document.querySelector('[data-editkey="'+key+'"]');
+      if(!el) return;
+      var d = dataFor(key);
+      var base = d.fs != null ? d.fs : parseFloat(getComputedStyle(el).fontSize);
+      var w = d.w != null ? d.w : el.offsetWidth;
+      var h = d.h != null ? d.h : el.offsetHeight;
+      d = {dx:d.dx, dy:d.dy, scale:d.scale, fs:Math.max(8, base+delta), w:w, h:h};
+      setDataFor(key, d);
+      scheduleSave(key, d);
+    });
+  }
+  function widthStep(delta){
+    selectedKeys.forEach(function(key){
+      var el = document.querySelector('[data-editkey="'+key+'"]');
+      if(!el) return;
+      var d = dataFor(key);
+      var base = d.w != null ? d.w : el.getBoundingClientRect().width / (d.scale||1);
+      d = {dx:d.dx, dy:d.dy, scale:d.scale, fs:d.fs, w:Math.max(20, base+delta), h:d.h};
+      setDataFor(key, d);
+      scheduleSave(key, d);
+    });
+  }
+  function heightStep(delta){
+    selectedKeys.forEach(function(key){
+      var el = document.querySelector('[data-editkey="'+key+'"]');
+      if(!el) return;
+      var d = dataFor(key);
+      var base = d.h != null ? d.h : el.getBoundingClientRect().height / (d.scale||1);
+      d = {dx:d.dx, dy:d.dy, scale:d.scale, fs:d.fs, w:d.w, h:Math.max(20, base+delta)};
+      setDataFor(key, d);
+      scheduleSave(key, d);
+    });
+  }
+  function resetSel(){
+    selectedKeys.forEach(function(key){
+      setDataFor(key, {dx:0, dy:0, scale:1, fs:null, w:null, h:null});
+      editsCol.doc(key).delete().catch(function(){});
+    });
+  }
+
+  function clearGuides(){
+    document.querySelectorAll('.align-guide-v,.align-guide-h').forEach(function(g){ g.remove(); });
+  }
+  function drawGuideV(x){
+    var g = document.createElement('i'); g.className = 'align-guide-v'; g.style.left = x+'px';
+    document.body.appendChild(g);
+  }
+  function drawGuideH(y){
+    var g = document.createElement('i'); g.className = 'align-guide-h'; g.style.top = y+'px';
+    document.body.appendChild(g);
+  }
+  function checkAlign(target){
+    clearGuides();
+    var snap = {x:0, y:0};
+    var activeSlide = target.closest('.slide.is-active');
+    if(!activeSlide) return snap;
+    var THRESH = 6;
+    var r0 = target.getBoundingClientRect();
+    var mineV = [r0.left, r0.left+r0.width/2, r0.right];
+    var mineH = [r0.top, r0.top+r0.height/2, r0.bottom];
+    Array.prototype.forEach.call(activeSlide.querySelectorAll('[data-editkey]'), function(o){
+      if(o === target) return;
+      var r = o.getBoundingClientRect();
+      if(r.width === 0 && r.height === 0) return;
+      var oV = [r.left, r.left+r.width/2, r.right];
+      var oH = [r.top, r.top+r.height/2, r.bottom];
+      mineV.forEach(function(m){
+        oV.forEach(function(ov){
+          if(Math.abs(m-ov) <= THRESH){ snap.x = ov - m; drawGuideV(ov); }
+        });
+      });
+      mineH.forEach(function(m){
+        oH.forEach(function(oh){
+          if(Math.abs(m-oh) <= THRESH){ snap.y = oh - m; drawGuideH(oh); }
+        });
+      });
+    });
+    return snap;
+  }
+
+  function computePathKey(si, el, slideEl){
+    var path = [];
+    var node = el;
+    while(node && node !== slideEl){
+      var parent = node.parentElement;
+      if(!parent) break;
+      path.unshift(Array.prototype.indexOf.call(parent.children, node));
+      node = parent;
+    }
+    return 's' + si + '-p' + path.join('.');
+  }
+
+  var dragState = null;
+  document.getElementById('stage').addEventListener('mousedown', function(e){
+    if(!editModeOn) return;
+    var slideEl = e.target.closest('.slide.is-active');
+    if(!slideEl) return;
+    var target = e.target.closest('[data-editkey]');
+    if(!target){
+      if(e.target === slideEl){ deselect(); return; }
+      target = e.target;
+      if(!target.dataset.editkey){
+        var si = Array.prototype.indexOf.call(document.querySelectorAll('#stage .slide'), slideEl);
+        target.dataset.editkey = computePathKey(si, target, slideEl);
+      }
+    }
+    e.preventDefault();
+    var key = target.dataset.editkey;
+    var pendingToggle = null;
+    if(e.ctrlKey || e.metaKey){
+      if(isSelected(key)){
+        pendingToggle = key; // could be a group-drag start; only toggle off if it ends up a plain click
+      } else {
+        setSelection(selectedKeys.concat([key]));
+      }
+    } else if(!isSelected(key)){
+      setSelection([key]);
+    }
+    if(selectedKeys.length === 0) return;
+    var bases = {};
+    selectedKeys.forEach(function(k){ bases[k] = dataFor(k); });
+    dragState = { el: target, startX: e.clientX, startY: e.clientY, bases: bases, pendingToggle: pendingToggle, moved: false };
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragState) return;
+    var ddx = e.clientX - dragState.startX;
+    var ddy = e.clientY - dragState.startY;
+    if(!dragState.moved && Math.abs(ddx) <= 4 && Math.abs(ddy) <= 4) return;
+    dragState.moved = true;
+    Object.keys(dragState.bases).forEach(function(key){
+      var b = dragState.bases[key];
+      setDataFor(key, { dx: b.dx+ddx, dy: b.dy+ddy, scale: b.scale, fs: b.fs, w: b.w, h: b.h });
+    });
+    if(e.shiftKey){
+      var snap = checkAlign(dragState.el);
+      if(snap.x || snap.y){
+        Object.keys(dragState.bases).forEach(function(key){
+          var d = overrides[key];
+          setDataFor(key, { dx: d.dx+snap.x, dy: d.dy+snap.y, scale: d.scale, fs: d.fs, w: d.w, h: d.h });
+        });
+      }
+    } else {
+      clearGuides();
+    }
+  });
+  document.addEventListener('mouseup', function(){
+    if(!dragState) return;
+    var keys = Object.keys(dragState.bases);
+    var pendingToggle = dragState.pendingToggle;
+    var moved = dragState.moved;
+    dragState = null;
+    document.body.style.userSelect = '';
+    clearGuides();
+    keys.forEach(function(key){
+      var d = overrides[key];
+      if(d) scheduleSave(key, d);
+    });
+    if(pendingToggle && !moved){
+      setSelection(selectedKeys.filter(function(k){ return k !== pendingToggle; }));
+    }
+  });
+
+  panel.querySelector('[data-act="up"]').addEventListener('click', function(){ nudge(0,-6); });
+  panel.querySelector('[data-act="down"]').addEventListener('click', function(){ nudge(0,6); });
+  panel.querySelector('[data-act="left"]').addEventListener('click', function(){ nudge(-6,0); });
+  panel.querySelector('[data-act="right"]').addEventListener('click', function(){ nudge(6,0); });
+  panel.querySelector('[data-act="bigger"]').addEventListener('click', function(){ rescale(.05); });
+  panel.querySelector('[data-act="smaller"]').addEventListener('click', function(){ rescale(-.05); });
+  panel.querySelector('[data-act="wbigger"]').addEventListener('click', function(){ widthStep(12); });
+  panel.querySelector('[data-act="wsmaller"]').addEventListener('click', function(){ widthStep(-12); });
+  panel.querySelector('[data-act="hbigger"]').addEventListener('click', function(){ heightStep(12); });
+  panel.querySelector('[data-act="hsmaller"]').addEventListener('click', function(){ heightStep(-12); });
+  panel.querySelector('[data-act="fontbigger"]').addEventListener('click', function(){ fontStep(2); });
+  panel.querySelector('[data-act="fontsmaller"]').addEventListener('click', function(){ fontStep(-2); });
+  panel.querySelector('[data-act="reset"]').addEventListener('click', resetSel);
+  panel.querySelector('[data-act="close"]').addEventListener('click', deselect);
+})();
+</script>
